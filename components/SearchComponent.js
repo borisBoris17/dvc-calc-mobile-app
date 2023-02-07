@@ -10,12 +10,14 @@ export default function SearchComponent({ navigation }) {
   const [displayedDate, setDisplayedDate] = useState(moment())
 
   const onDateChange = (dates) => {
-    console.log(dates, dates['startDate'], dates['endDate'])
     if (dates['startDate']) {
       setBeginDate(dates['startDate']);
     }
     if (dates['endDate']) {
       setEndDate(dates['endDate']);
+    }
+    if (dates['displayedDate']) {
+      setDisplayedDate(dates['displayedDate']);
     }
   }
 
@@ -23,14 +25,12 @@ export default function SearchComponent({ navigation }) {
     if (beginDate && endDate) {
       const formatedBeginDate = beginDate.format('YYYY-MM-DD');
       const formatedEndDate = endDate.format('YYYY-MM-DD');
-      console.log(`https://dvc-calc.tucker-dev.com/dvc-calc-api/pointAmount/${formatedBeginDate}/${formatedEndDate}`)
       axios.get(`https://dvc-calc.tucker-dev.com/dvc-calc-api/pointAmount/${formatedBeginDate}/${formatedEndDate}`).then((response, error) => {
         if (error) {
           console.log('There was an error: ', error);
         }
         navigation.navigate('Results', {results: response.data})
       });
-
     }
   }
 

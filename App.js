@@ -1,8 +1,4 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'; import Constants from 'expo-constants';
-import { useState } from 'react';
-import moment from "moment";
-import DateRangePicker from 'react-native-daterange-picker';
+import { StyleSheet, View } from 'react-native'; import Constants from 'expo-constants';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SearchComponent from './components/SearchComponent';
@@ -11,25 +7,6 @@ import ResultsComponent from './components/ResultsComponent';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-  const [input, setInput] = useState('');
-  const [beginDate, setBeginDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
-  const [displayedDate, setDisplayedDate] = useState(moment())
-
-
-  const onChangeInput = (text) => {
-    setInput(text)
-  }
-
-  const onDateChange = (dates) => {
-    console.log(dates, dates['startDate'], dates['endDate'])
-    if (dates['startDate']) {
-      setBeginDate(dates['startDate']);
-    }
-    if (dates['endDate']) {
-      setEndDate(dates['endDate']);
-    }
-  }
 
   return (
     <>

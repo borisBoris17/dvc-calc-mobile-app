@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "dvc-calc-mobile-app",
+    "name": "DVC Calc",
     "slug": "dvc-calc-mobile-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -18,7 +18,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tbichse.dvccalcmobileapp"
     },
     "android": {
       "adaptiveIcon": {
@@ -28,6 +29,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "1e134968-5f5a-4fa9-87a7-df4ee3b42f74"
+      }
     }
   }
 }
