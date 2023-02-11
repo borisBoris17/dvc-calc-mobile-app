@@ -3,6 +3,11 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SearchComponent from './components/SearchComponent';
 import ResultsComponent from './components/ResultsComponent';
+import {
+  enGB,
+  registerTranslation,
+} from 'react-native-paper-dates'
+registerTranslation('en-GB', enGB)
 
 const Stack = createNativeStackNavigator();
 
@@ -10,14 +15,15 @@ export default function App() {
 
   return (
     <>
-      <View style={styles.statusBar}></View>
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen
+            options={{headerShown: false}}
             name="Search"
             component={SearchComponent}>
           </Stack.Screen>
           <Stack.Screen
+            options={{headerShown: false}}
             name="Results"
             component={ResultsComponent}>
           </Stack.Screen>
