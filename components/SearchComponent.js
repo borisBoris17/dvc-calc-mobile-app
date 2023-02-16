@@ -1,15 +1,16 @@
-import { StyleSheet, TouchableOpacity, View, Image } from 'react-native'; import Constants from 'expo-constants';
-import { useState, useCallback } from 'react';
+import { StyleSheet, TouchableOpacity, View, Image } from 'react-native';
+import Constants from 'expo-constants';
+import { useState, useCallback, useEffect } from 'react';
 import { Button, Text, IconButton, Modal } from 'react-native-paper';
 import { DatePickerModal } from 'react-native-paper-dates';
-import axios from 'axios';
 import {
   en,
   registerTranslation,
 } from 'react-native-paper-dates'
 registerTranslation('en', en)
 
-export default function SearchComponent({ navigation }) {
+export default function SearchComponent({ db, navigation }) {
+
   const [range, setRange] = useState({ startDate: undefined, endDate: undefined })
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -20,8 +21,10 @@ export default function SearchComponent({ navigation }) {
 
   const onConfirm = useCallback(
     ({ startDate, endDate }) => {
+      const checkInDate = new Date(startDate.toLocaleDateString())
+      const checkOutDate = new Date(endDate.toLocaleDateString())
       setOpen(false);
-      setRange({ startDate, endDate });
+      setRange({ startDate: checkInDate, endDate: checkOutDate });
     },
     [setOpen, setRange]
   );
@@ -40,19 +43,89 @@ export default function SearchComponent({ navigation }) {
     return [year, month, day].join('-');
   }
 
-  const handleSearch = () => {
+  const runTransaction = (sql) => {
+    return new Promise(resolve => {
+      db.transaction(tx => {
+        tx.executeSql(
+          sql,
+          undefined,
+          (_, { rows: { _array } }) => resolve(_array),
+          (txObj, error) => console.log('Error ', error)
+        );
+      })
+    })
+  }
+
+  function fetchPointsForNight(viewTypeId, dateStr, date) {
+    return new Promise(resolve => {
+      db.transaction(tx => {
+        tx.executeSql(
+          'SELECT * FROM point_value WHERE view_type_id = ? and start_date <= ? and end_date >= ? ORDER BY view_type_id ASC',
+          [viewTypeId, dateStr, dateStr],
+          (_, { rows: { _array } }) => {
+            if (date.getDay() == 5 || date.getDay() == 6) {
+              resolve(_array[0]?.weekend_rate);
+            }
+            resolve(_array[0]?.weekday_rate);
+          },
+          (txObj, error) => console.log('Error fetch points ', error)
+        );
+      })
+    });
+  }
+
+  const handleSearch = async () => {
     if (range.startDate && range.endDate) {
-      setIsLoading(true);
-      const formatedBeginDate = formatDate(range.startDate);
-      const formatedEndDate = formatDate(range.endDate);
-      axios.get(`https://dvc-calc.tucker-dev.com/dvc-calc-api/pointAmount/${formatedBeginDate}/${formatedEndDate}`).then((response, error) => {
-        if (error) {
-          console.log('There was an error: ', error);
-        }
-        setIsLoading(false);
-        navigation.navigate('Results', { results: response.data, checkInDate: range.startDate, checkOutDate: range.startDate })
-      });
-    }
+      setIsLoading(true)
+      const foundResorts = await runTransaction('select * from resort;');
+      const resortArray = [];
+      await Promise.all(foundResorts.map(async resort => {
+        const foundRoomTypes = await runTransaction(`SELECT * FROM room_type WHERE resort_id = ${resort.resort_id} ORDER BY room_type_id ASC`);
+        let roomTypeArray = [];
+        await Promise.all(foundRoomTypes.map(async roomType => {
+          const foundViewTypes = await runTransaction(`SELECT * FROM view_type WHERE room_type_id = ${roomType.room_type_id} ORDER BY view_type_id ASC`)
+          const viewTypeArray = [];
+          await Promise.all(foundViewTypes.map(async viewType => {
+            let currentDate = new Date(range.startDate);
+            let totalPointsNeeded = 0;
+            let dates = [];
+            while (currentDate < range.endDate) {
+              const amountForDay = await fetchPointsForNight(viewType.view_type_id, formatDate(currentDate), currentDate);
+              // add the date need for that day to the response obj
+
+              // total the amount for the whole stay
+              totalPointsNeeded = totalPointsNeeded + amountForDay;
+              // add the points need for that day to the response obj
+              dates.push({
+                date: currentDate.toLocaleDateString(),
+                points: amountForDay
+              })
+              currentDate.setDate(currentDate.getDate() + 1);
+            }
+            viewTypeArray.push({
+              view_type_id: viewType.view_type_id,
+              view_type_name: viewType.name,
+              totalPoints: totalPointsNeeded,
+              dates: dates
+            });
+          }))
+          roomTypeArray.push({
+            room_type_id: roomType.room_type_id,
+            room_type_name: roomType.name,
+            viewTypes: viewTypeArray
+          })
+        }))
+        resortArray.push({
+          resort_id: resort.resort_id,
+          resort_name: resort.name,
+          roomTypes: roomTypeArray
+        })
+      }))
+      const responseObj = {
+        'resorts': resortArray
+      }
+      setIsLoading(false)
+      navigation.navigate('Results', { results: responseObj, checkInDate: range.startDate, checkOutDate: range.endDate })    }
   }
 
   return (
@@ -74,7 +147,7 @@ export default function SearchComponent({ navigation }) {
               style={styles.closeButton}
               icon="close"
               iconColor="#000"
-              size={30}
+              size={22}
               onPress={() => setRange({ startDate: undefined, endDate: undefined })}
             /> : ''}
           </TouchableOpacity>
@@ -88,7 +161,7 @@ export default function SearchComponent({ navigation }) {
           endDate={range.endDate}
           onConfirm={onConfirm}
         />
-        <Button onPress={handleSearch} labelStyle={styles.searchText} mode="contained" style={styles.searchButton}>Search</Button>
+        <Button onPress={range.startDate === undefined && range.endDate === undefined ? () => {} : () => {handleSearch()}} labelStyle={styles.searchText} mode="contained" style={range.startDate === undefined && range.endDate === undefined ? styles.disabledButton : styles.searchButton}>Search</Button>
         <Modal visible={isLoading} dismissable={false} contentContainerStyle={styles.loadingIndicator}>
           <Image
             style={{
@@ -140,6 +213,11 @@ const styles = StyleSheet.create({
     marginTop: 80,
     backgroundColor: '#0D45A0',
   },
+  disabledButton: {
+    marginTop: 80,
+    color: '#666666',
+    backgroundColor: '#cccccc',
+  },
   searchText: {
     fontSize: 20,
     paddingLeft: 10,
@@ -150,9 +228,9 @@ const styles = StyleSheet.create({
   },
   loadingIndicator: {
     margin: '5%',
-    backgroundColor: 'white', 
-    padding: 20, 
-    height: '80%' , 
+    backgroundColor: 'white',
+    padding: 20,
+    height: '80%',
     width: '90%',
     borderRadius: 5,
   }

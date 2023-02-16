@@ -3,6 +3,11 @@ import { Text } from 'react-native-paper';
 
 import { IconButton } from 'react-native-paper';
 import ResortComponent from './ResortComponent';
+import { LogBox } from 'react-native';
+
+LogBox.ignoreLogs([
+  'Non-serializable values were found in the navigation state',
+]);
 
 export default function ResultsComponent({ route, navigation }) {
   const { results, checkInDate, checkOutDate } = route.params;

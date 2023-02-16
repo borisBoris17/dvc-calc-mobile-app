@@ -20,8 +20,8 @@ export default function ViewTypeComponent({ viewType }) {
         : <TouchableOpacity onPress={() => setShowDetails(true)}><Text style={styles.detailsButton}>Details</Text></TouchableOpacity>
       }
       {showDetails ?
-        viewType.dates.map((detail) => (
-          <View style={styles.detail}>
+        viewType.dates.map((detail, index) => (
+          <View key={index} style={styles.detail}>
             <Text style={styles.nightlyPoints}>{detail.date}</Text>
             <Text >{detail.points} pts</Text>
           </View>
