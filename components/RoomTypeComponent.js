@@ -1,6 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native'; import Constants from 'expo-constants';
+import { StyleSheet, Text, View } from 'react-native';
 import ViewTypeComponent from './ViewTypeComponent';
-
 
 export default function RoomTypeComponent({roomType}) {
 
@@ -16,12 +15,12 @@ export default function RoomTypeComponent({roomType}) {
 
 const styles = StyleSheet.create({
   roomTypeName: {
-    fontSize: 18,
+    fontSize: 22,
     padding: 5
   },
   roomTypeContainer: {
-    borderLeftWidth: 1,
-    width: '90%',
+    borderLeftWidth: 5,
+    width: '95%',
     margin: 10
   }
 });
