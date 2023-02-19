@@ -12,11 +12,14 @@ registerTranslation('en-GB', enGB)
 import * as SQLite from 'expo-sqlite';
 import * as FileSystem from "expo-file-system";
 import { Asset } from "expo-asset";
+import { runTransaction } from './util'
+import { MD3LightTheme as DefaultTheme, Provider } from 'react-native-paper';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   const [db, setDb] = useState(SQLite.openDatabase('db.db'));
+  const [resorts, setResorts] = useState([]);
 
   async function openDatabase() {
 
@@ -72,24 +75,48 @@ export default function App() {
     openDatabase();
   }, [])
 
+  const fetchResorts = async () => {
+    const foundResorts = await runTransaction(db, 'select * from resort order by resort_id ASC;');
+    const builtResorts = foundResorts.map(resort => {
+      return { selected: true, name: resort.name }
+    });
+    setResorts(builtResorts)
+  }
+
+  useEffect(() => {
+    fetchResorts();
+  }, [db])
+
+  const theme = {
+    ...DefaultTheme,
+    colors: {
+      ...DefaultTheme.colors,
+      primary: '#00232c',
+      secondary: '#d5edf1',
+      tertiary: '#d5edf1',
+      surface: '#c3dddf',
+      primaryContainer: '#d5edf1',
+    },
+  };
+
   return (
-    <>
+    <Provider theme={theme}>
       <NavigationContainer>
         <Stack.Navigator screenProps={{db: db}}>
           <Stack.Screen
             options={{ headerShown: false }}
             name="Search"
             >
-              {(props) => <SearchComponent {...props} db={db} />}
+              {(props) => <SearchComponent {...props} db={db} resorts={resorts} setResorts={setResorts} />}
           </Stack.Screen>
           <Stack.Screen
             options={{ headerShown: false }}
-            name="Results"
-            component={ResultsComponent}>
+            name="Results">
+              {(props) => <ResultsComponent {...props} resorts={resorts} setResorts={setResorts} />}
           </Stack.Screen>
         </Stack.Navigator>
       </NavigationContainer>
-    </>
+    </Provider>
   );
 }
 
