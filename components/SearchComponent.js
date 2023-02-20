@@ -11,12 +11,14 @@ import {
 registerTranslation('en', en)
 import ResortModalComponent from './ResortModalComponent';
 import { fetchResults } from '../util';
+import RoomTypeModalComponent from './RoomTypeModalComponent';
 
-export default function SearchComponent({ db, navigation, resorts, setResorts }) {
+export default function SearchComponent({ db, navigation, resorts, setResorts, roomTypes, setRoomTypes }) {
 
   const [range, setRange] = useState({ startDate: undefined, endDate: undefined })
   const [open, setOpen] = useState(false);
   const [openResorts, setOpenResorts] = useState(false);
+  const [openRoomTypes, setOpenRoomTypes] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const onDismiss = useCallback(() => {
@@ -35,6 +37,10 @@ export default function SearchComponent({ db, navigation, resorts, setResorts })
 
   const onDismissResorts = useCallback(() => {
     setOpenResorts(false);
+  }, [setOpen]);
+
+  const onDismissRoomTypes = useCallback(() => {
+    setOpenRoomTypes(false);
   }, [setOpen]);
 
   const handleSearch = async () => {
@@ -96,12 +102,23 @@ export default function SearchComponent({ db, navigation, resorts, setResorts })
             </Text>
           </TouchableOpacity>
         </View>
+        <View style={styles.dateTitle}>
+          <Text variant="bodyLarge">Room Types</Text>
+          <TouchableOpacity style={styles.dateInput} onPress={() => setOpenRoomTypes(true)}>
+            <Text style={styles.button}>
+              {roomTypes?.filter(roomType => roomType.selected).length === 0 ?
+                `Select Room Types...`
+                : roomTypes?.filter(roomType => roomType.selected).length === 1 ? `1 Room Type Selected...` : `${roomTypes?.filter(roomType => roomType.selected).length} Room Types Selected...`}
+            </Text>
+          </TouchableOpacity>
+        </View>
         <Button
           onPress={(range.startDate === undefined && range.endDate === undefined) || resorts?.filter(resort => resort.selected).length === 0 ? () => { } : () => { handleSearch() }} 
           labelStyle={styles.searchText} 
           mode="contained" 
           style={(range.startDate === undefined && range.endDate === undefined) || resorts?.filter(item => item.selected).length === 0 ? styles.disabledButton : styles.searchButton}>Search</Button>
         <ResortModalComponent openResorts={openResorts} onDismissResorts={onDismissResorts} resorts={resorts} setResorts={setResorts} />
+        <RoomTypeModalComponent openRoomTypes={openRoomTypes} onDismissRoomTypes={onDismissRoomTypes} roomTypes={roomTypes} setRoomTypes={setRoomTypes} />
         <Modal visible={isLoading} dismissable={false} contentContainerStyle={styles.loadingIndicator}>
           <Image
             style={{

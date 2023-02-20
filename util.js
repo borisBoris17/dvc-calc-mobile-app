@@ -78,6 +78,7 @@ export async function fetchResults(db, range) {
       roomTypeArray.push({
         room_type_id: roomType.room_type_id,
         room_type_name: roomType.name,
+        number_bedrooms: roomType.number_bedrooms,
         viewTypes: viewTypeArray
       });
     }));
