@@ -6,15 +6,17 @@ import ResortComponent from './ResortComponent';
 import { LogBox } from 'react-native';
 import { useCallback, useState } from 'react';
 import ResortModalComponent from './ResortModalComponent';
+import RoomTypeModalComponent from './RoomTypeModalComponent';
 
 LogBox.ignoreLogs([
   'Non-serializable values were found in the navigation state',
 ]);
 
-export default function ResultsComponent({ route, navigation, resorts, setResorts }) {
+export default function ResultsComponent({ route, navigation, resorts, setResorts, roomTypes, setRoomTypes }) {
   const { results, checkInDate, checkOutDate } = route.params;
 
   const [openResortFilter, setOpenResortFilter] = useState(false);
+  const [openRoomTypeFilter, setOpenRoomTypeFilter] = useState(false);
 
   const handleBack = () => {
     navigation.navigate('Search', {})
@@ -22,6 +24,10 @@ export default function ResultsComponent({ route, navigation, resorts, setResort
 
   const onDismissResorts = useCallback(() => {
     setOpenResortFilter(false);
+  }, [setOpenResortFilter]);
+
+  const onDismissRoomTypes = useCallback(() => {
+    setOpenRoomTypeFilter(false);
   }, [setOpenResortFilter]);
 
   function formatDate(date) {
@@ -35,7 +41,7 @@ export default function ResultsComponent({ route, navigation, resorts, setResort
 
     if (filteredArray.length > 0) {
       return (
-        <ResortComponent resort={filteredArray[0]}></ResortComponent>
+        <ResortComponent resort={filteredArray[0]} roomTypes={roomTypes}></ResortComponent>
       )
     }
     return '';
@@ -55,6 +61,7 @@ export default function ResultsComponent({ route, navigation, resorts, setResort
       </View>
       <View style={styles.filters}>
         <Button style={styles.filterButton} labelStyle={styles.buttonText} onPress={() => setOpenResortFilter(true)} mode="contained" icon="filter">Resorts</Button>
+        <Button style={styles.filterButton} labelStyle={styles.buttonText} onPress={() => setOpenRoomTypeFilter(true)} mode="contained" icon="filter">Room Types</Button>
       </View>
       <ScrollView stickyHeaderIndices={[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26]} style={styles.scrollStyle}>
         {resorts?.filter(resort => resort.name === 'Riviera')[0].selected ? <View><Text style={styles.resortHeader}>Riviera</Text></View> : ''}
@@ -87,6 +94,7 @@ export default function ResultsComponent({ route, navigation, resorts, setResort
         {resorts?.filter(resort => resort.name === 'Hilton Head Island')[0].selected ? printResort('Hilton Head Island', results.resorts) : ''}
       </ScrollView>
       <ResortModalComponent openResorts={openResortFilter} onDismissResorts={onDismissResorts} resorts={resorts} setResorts={setResorts} />
+      <RoomTypeModalComponent openRoomTypes={openRoomTypeFilter} onDismissRoomTypes={onDismissRoomTypes} roomTypes={roomTypes} setRoomTypes={setRoomTypes} />
     </>
   )
 }

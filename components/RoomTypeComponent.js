@@ -1,15 +1,17 @@
 import { StyleSheet, Text, View } from 'react-native';
 import ViewTypeComponent from './ViewTypeComponent';
 
-export default function RoomTypeComponent({roomType}) {
+export default function RoomTypeComponent({roomType, roomTypes}) {
 
   return (
-    <View style={styles.roomTypeContainer}>
+    <>
+    {roomTypes.filter(selectedRoomType => selectedRoomType.selected && selectedRoomType.number_bedrooms === roomType.number_bedrooms).length > 0 ? <View style={styles.roomTypeContainer}>
       <Text style={styles.roomTypeName}>{roomType.room_type_name}</Text>
       {roomType.viewTypes.map((viewType) => (
         <ViewTypeComponent key={viewType.view_type_id} viewType={viewType}></ViewTypeComponent>
       ))}
-    </View>
+    </View> : ''}
+    </>
   )
 }
 

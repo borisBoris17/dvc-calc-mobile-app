@@ -20,6 +20,12 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   const [db, setDb] = useState(SQLite.openDatabase('db.db'));
   const [resorts, setResorts] = useState([]);
+  const [roomTypes, setRoomTypes] = useState([
+    {selected: 'true', number_bedrooms: 0, name: 'Studio'},
+    {selected: 'true', number_bedrooms: 1, name: 'One Bedroom'},
+    {selected: 'true', number_bedrooms: 2, name: 'Two Bedroom'},
+    {selected: 'true', number_bedrooms: 3, name: 'Three Bedroom'},
+  ]);
 
   async function openDatabase() {
 
@@ -47,7 +53,7 @@ export default function App() {
           console.log('asset copyDatabase - finished with error: ' + error)
       })
     } else {
-      // for iOS - Asset is downloaded on call Asset.fromModule(), just copy from cache to local file
+      // for iOS  -Asset is downloaded on call Asset.fromModule(), just copy from cache to local file
       if (asset.localUri || asset.uri.startsWith("asset") || asset.uri.startsWith("file")) {
   
         let remoteURI = asset.localUri || asset.uri
@@ -107,12 +113,12 @@ export default function App() {
             options={{ headerShown: false }}
             name="Search"
             >
-              {(props) => <SearchComponent {...props} db={db} resorts={resorts} setResorts={setResorts} />}
+              {(props) => <SearchComponent {...props} db={db} resorts={resorts} setResorts={setResorts} roomTypes={roomTypes} setRoomTypes={setRoomTypes} />}
           </Stack.Screen>
           <Stack.Screen
             options={{ headerShown: false }}
             name="Results">
-              {(props) => <ResultsComponent {...props} resorts={resorts} setResorts={setResorts} />}
+              {(props) => <ResultsComponent {...props} resorts={resorts} setResorts={setResorts} roomTypes={roomTypes} setRoomTypes={setRoomTypes} />}
           </Stack.Screen>
         </Stack.Navigator>
       </NavigationContainer>
