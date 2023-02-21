@@ -26,7 +26,7 @@ export default function RoomTypeModalComponent({ openRoomTypes, onDismissRoomTyp
   const styles = StyleSheet.create({
     container: {
       margin: '5%',
-      backgroundColor: theme.colors.secondary,
+      backgroundColor: theme.colors.tertiary,
       margin: 20,
       height: 500,
       width: '90%',
@@ -41,21 +41,25 @@ export default function RoomTypeModalComponent({ openRoomTypes, onDismissRoomTyp
       flex: 1,
       width: '90%',
       alignItems: 'right',
+      borderBottomColor: theme.colors.primary,
       fontSize: 24
     },
     modalTitleRow: {
       display: 'flex',
       flexDirection: 'row',
       borderBottomWidth: 3,
+      borderBottomColor: theme.colors.primary,
       alignItems: 'center'
     },
     modalTitle: {
       flex: 1,
       fontSize: 24,
+      borderBottomColor: theme.colors.primary,
       margin: 10
     },
     buttonText: {
       fontSize: 20,
+      borderBottomColor: theme.colors.primary,
     },
     closeButton: {
       margin: 10

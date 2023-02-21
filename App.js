@@ -1,8 +1,5 @@
-import { StyleSheet, View } from 'react-native'; import Constants from 'expo-constants';
-import { NavigationContainer } from '@react-navigation/native';
+import { StyleSheet } from 'react-native'; import Constants from 'expo-constants';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import SearchComponent from './components/SearchComponent';
-import ResultsComponent from './components/ResultsComponent';
 import {
   enGB,
   registerTranslation,
@@ -12,20 +9,13 @@ registerTranslation('en-GB', enGB)
 import * as SQLite from 'expo-sqlite';
 import * as FileSystem from "expo-file-system";
 import { Asset } from "expo-asset";
-import { runTransaction } from './util'
 import { MD3LightTheme as DefaultTheme, Provider } from 'react-native-paper';
+import CalculatorComponent from './components/CalculatorComponent';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   const [db, setDb] = useState(SQLite.openDatabase('db.db'));
-  const [resorts, setResorts] = useState([]);
-  const [roomTypes, setRoomTypes] = useState([
-    {selected: 'true', number_bedrooms: 0, name: 'Studio'},
-    {selected: 'true', number_bedrooms: 1, name: 'One Bedroom'},
-    {selected: 'true', number_bedrooms: 2, name: 'Two Bedroom'},
-    {selected: 'true', number_bedrooms: 3, name: 'Three Bedroom'},
-  ]);
 
   async function openDatabase() {
 
@@ -81,25 +71,13 @@ export default function App() {
     openDatabase();
   }, [])
 
-  const fetchResorts = async () => {
-    const foundResorts = await runTransaction(db, 'select * from resort order by resort_id ASC;');
-    const builtResorts = foundResorts.map(resort => {
-      return { selected: true, name: resort.name }
-    });
-    setResorts(builtResorts)
-  }
-
-  useEffect(() => {
-    fetchResorts();
-  }, [db])
-
   const theme = {
     ...DefaultTheme,
     colors: {
       ...DefaultTheme.colors,
       primary: '#00232c',
       secondary: '#d5edf1',
-      tertiary: '#d5edf1',
+      tertiary: '#f7fbfc',
       surface: '#c3dddf',
       primaryContainer: '#d5edf1',
     },
@@ -107,21 +85,7 @@ export default function App() {
 
   return (
     <Provider theme={theme}>
-      <NavigationContainer>
-        <Stack.Navigator screenProps={{db: db}}>
-          <Stack.Screen
-            options={{ headerShown: false }}
-            name="Search"
-            >
-              {(props) => <SearchComponent {...props} db={db} resorts={resorts} setResorts={setResorts} roomTypes={roomTypes} setRoomTypes={setRoomTypes} />}
-          </Stack.Screen>
-          <Stack.Screen
-            options={{ headerShown: false }}
-            name="Results">
-              {(props) => <ResultsComponent {...props} resorts={resorts} setResorts={setResorts} roomTypes={roomTypes} setRoomTypes={setRoomTypes} />}
-          </Stack.Screen>
-        </Stack.Navigator>
-      </NavigationContainer>
+      <CalculatorComponent db={db} />
     </Provider>
   );
 }

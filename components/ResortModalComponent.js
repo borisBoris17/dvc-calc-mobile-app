@@ -26,7 +26,7 @@ export default function ResortModalComponent({ openResorts, onDismissResorts, re
   const styles = StyleSheet.create({
     container: {
       margin: '5%',
-      backgroundColor: theme.colors.secondary,
+      backgroundColor: theme.colors.tertiary,
       margin: 20,
       height: 500,
       width: '90%',
@@ -41,21 +41,25 @@ export default function ResortModalComponent({ openResorts, onDismissResorts, re
       flex: 1,
       width: '90%',
       alignItems: 'right',
-      fontSize: 24
+      fontSize: 24,
+      color: theme.colors.primary,
     },
     modalTitleRow: {
       display: 'flex',
       flexDirection: 'row',
       borderBottomWidth: 3,
+      borderBottomColor: theme.colors.primary,
       alignItems: 'center'
     },
     modalTitle: {
       flex: 1,
       fontSize: 24,
-      margin: 10
+      margin: 10,
+      color: theme.colors.primary,
     },
     buttonText: {
       fontSize: 20,
+      color: theme.colors.primary,
     },
     closeButton: {
       margin: 10
