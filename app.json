@@ -18,6 +18,7 @@
       "**/*"
     ],
     "ios": {
+      "buildNumber": "3",
       "supportsTablet": true,
       "bundleIdentifier": "com.tbichse.dvccalcmobileapp"
     },

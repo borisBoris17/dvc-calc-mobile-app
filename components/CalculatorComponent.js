@@ -14,7 +14,7 @@ import { useTheme } from "react-native-paper";
 
 const Stack = createNativeStackNavigator();
 
-export default function CalculatorComponent({db}) {
+export default function CalculatorComponent({ db }) {
   const [resorts, setResorts] = useState([]);
   const [roomTypes, setRoomTypes] = useState([
     { selected: 'true', number_bedrooms: 0, name: 'Studio' },
@@ -25,11 +25,13 @@ export default function CalculatorComponent({db}) {
 
   const fetchResorts = async () => {
     console.log('db', db);
-    const foundResorts = await runTransaction(db, 'select * from resort order by resort_id ASC;');
-    const builtResorts = foundResorts.map(resort => {
-      return { selected: true, name: resort.name }
-    });
-    setResorts(builtResorts)
+    if (db !== undefined) {
+      const foundResorts = await runTransaction(db, 'select * from resort order by resort_id ASC;');
+      const builtResorts = foundResorts.map(resort => {
+        return { selected: true, name: resort.name }
+      });
+      setResorts(builtResorts)
+    }
   }
 
   useEffect(() => {

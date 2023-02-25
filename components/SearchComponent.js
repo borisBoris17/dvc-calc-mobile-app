@@ -27,10 +27,12 @@ export default function SearchComponent({ db, navigation, resorts, setResorts, r
 
   const onConfirm = useCallback(
     ({ startDate, endDate }) => {
-      const checkInDate = new Date(startDate.toLocaleDateString())
-      const checkOutDate = new Date(endDate.toLocaleDateString())
+      if (startDate && endDate) {
+        const checkInDate = new Date(startDate.toLocaleDateString())
+        const checkOutDate = new Date(endDate.toLocaleDateString())
+        setRange({ startDate: checkInDate, endDate: checkOutDate });
+      }
       setOpen(false);
-      setRange({ startDate: checkInDate, endDate: checkOutDate });
     },
     [setOpen, setRange]
   );
@@ -48,12 +50,12 @@ export default function SearchComponent({ db, navigation, resorts, setResorts, r
       setIsLoading(true)
       const responseObj = await fetchResults(db, range);
       setIsLoading(false)
-      navigation.navigate('Results', { 
-        results: responseObj, 
-        checkInDate: range.startDate, 
-        checkOutDate: range.endDate, 
-        resorts: resorts, 
-        setResorts: setResorts 
+      navigation.navigate('Results', {
+        results: responseObj,
+        checkInDate: range.startDate,
+        checkOutDate: range.endDate,
+        resorts: resorts,
+        setResorts: setResorts
       })
     }
   }
@@ -113,9 +115,9 @@ export default function SearchComponent({ db, navigation, resorts, setResorts, r
           </TouchableOpacity>
         </View>
         <Button
-          onPress={(range.startDate === undefined && range.endDate === undefined) || resorts?.filter(resort => resort.selected).length === 0 ? () => { } : () => { handleSearch() }} 
-          labelStyle={styles.searchText} 
-          mode="contained" 
+          onPress={(range.startDate === undefined && range.endDate === undefined) || resorts?.filter(resort => resort.selected).length === 0 ? () => { } : () => { handleSearch() }}
+          labelStyle={styles.searchText}
+          mode="contained"
           style={(range.startDate === undefined && range.endDate === undefined) || resorts?.filter(item => item.selected).length === 0 ? styles.disabledButton : styles.searchButton}>Search</Button>
         <ResortModalComponent openResorts={openResorts} onDismissResorts={onDismissResorts} resorts={resorts} setResorts={setResorts} />
         <RoomTypeModalComponent openRoomTypes={openRoomTypes} onDismissRoomTypes={onDismissRoomTypes} roomTypes={roomTypes} setRoomTypes={setRoomTypes} />
@@ -146,7 +148,7 @@ const styles = StyleSheet.create({
   },
   appTitle: {
     marginTop: 50,
-    marginBottom: 150,
+    marginBottom: '10%',
     color: '#00232c',
     textAlign: 'center'
   },

@@ -15,7 +15,7 @@ import CalculatorComponent from './components/CalculatorComponent';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-  const [db, setDb] = useState(SQLite.openDatabase('db.db'));
+  const [db, setDb] = useState(undefined);
 
   async function openDatabase() {
 
@@ -29,6 +29,7 @@ export default function App() {
   
     let asset = Asset.fromModule(require('./assets/db/dvcCalc.db'))
   
+    console.log('asset.downloaded', asset.downloaded)
     if (!asset.downloaded) {
       await asset.downloadAsync().then(value => {
         asset = value
@@ -63,7 +64,9 @@ export default function App() {
           })
       }
     }
-    await db.closeAsync()
+    if (db !== undefined) {
+      await db.closeAsync()
+    }
     setDb(SQLite.openDatabase(dbName));
   }
 
@@ -85,7 +88,7 @@ export default function App() {
 
   return (
     <Provider theme={theme}>
-      <CalculatorComponent db={db} />
+      {db ? <CalculatorComponent db={db} /> : '' }
     </Provider>
   );
 }
