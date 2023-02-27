@@ -1,9 +1,8 @@
 import { StyleSheet, TouchableOpacity, View, Image } from 'react-native';
 import Constants from 'expo-constants';
-import { useState, useCallback, useEffect } from 'react';
-import { Button, Text, IconButton, Modal, Checkbox } from 'react-native-paper';
+import { useState, useCallback } from 'react';
+import { Button, Text, IconButton, Modal, useTheme } from 'react-native-paper';
 import { DatePickerModal } from 'react-native-paper-dates';
-import { PaperSelect } from 'react-native-paper-select';
 import {
   en,
   registerTranslation,
@@ -20,6 +19,64 @@ export default function SearchComponent({ db, navigation, resorts, setResorts, r
   const [openResorts, setOpenResorts] = useState(false);
   const [openRoomTypes, setOpenRoomTypes] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const theme = useTheme();
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.primaryContainer,
+      padding: 10,
+      alignItems: 'center'
+    },
+    statusBar: {
+      height: Constants.statusBarHeight,
+      backgroundColor: theme.colors.primaryContainer,
+    },
+    appTitle: {
+      marginTop: 50,
+      marginBottom: '10%',
+      textAlign: 'center'
+    },
+    button: {
+      marginTop: 10,
+      marginBottom: 10,
+      fontSize: 22,
+      flex: 1,
+    },
+    dateTitle: {
+      borderBottomColor: theme.colors.primary,
+      borderBottomWidth: 3,
+      width: '95%',
+      marginBottom: 20,
+    },
+    dateInput: {
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center'
+    },
+    searchButton: {
+      marginTop: 80,
+    },
+    disabledButton: {
+      marginTop: 80,
+      backgroundColor: '#cccccc',
+    },
+    searchText: {
+      fontSize: 20,
+      paddingLeft: 10,
+      paddingRight: 10
+    },
+    closeButton: {
+      marginBottom: 5
+    },
+    loadingIndicator: {
+      margin: '5%',
+      height: '80%',
+      width: '90%',
+      borderRadius: 5,
+    }
+  });
 
   const onDismiss = useCallback(() => {
     setOpen(false);
@@ -93,6 +150,7 @@ export default function SearchComponent({ db, navigation, resorts, setResorts, r
           startDate={range.startDate}
           endDate={range.endDate}
           onConfirm={onConfirm}
+          validRange={{ startDate: new Date(2023, 0, 1), endDate: new Date(2024, 11, 31) }}
         />
         <View style={styles.dateTitle}>
           <Text variant="bodyLarge">Resorts</Text>
@@ -134,65 +192,4 @@ export default function SearchComponent({ db, navigation, resorts, setResorts, r
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#d5edf1',
-    padding: 10,
-    alignItems: 'center'
-  },
-  statusBar: {
-    height: Constants.statusBarHeight,
-    backgroundColor: '#d5edf1',
-  },
-  appTitle: {
-    marginTop: 50,
-    marginBottom: '10%',
-    color: '#00232c',
-    textAlign: 'center'
-  },
-  button: {
-    marginTop: 10,
-    marginBottom: 10,
-    fontSize: 22,
-    flex: 1,
-  },
-  dateTitle: {
-    borderBottomColor: '#0D45A0',
-    borderBottomWidth: 3,
-    width: '95%',
-    marginBottom: 20,
-  },
-  dateInput: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  searchButton: {
-    marginTop: 80,
-    backgroundColor: '#0D45A0',
-  },
-  disabledButton: {
-    marginTop: 80,
-    color: '#666666',
-    backgroundColor: '#cccccc',
-  },
-  searchText: {
-    fontSize: 20,
-    paddingLeft: 10,
-    paddingRight: 10
-  },
-  closeButton: {
-    marginBottom: 5
-  },
-  loadingIndicator: {
-    margin: '5%',
-    backgroundColor: 'white',
-    padding: 20,
-    height: '80%',
-    width: '90%',
-    borderRadius: 5,
-  }
-});
 

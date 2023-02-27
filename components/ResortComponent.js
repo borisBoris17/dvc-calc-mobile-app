@@ -17,16 +17,5 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     margin: 10
-  },
-  resortName: {
-    backgroundColor: '#00232c',
-    color: 'white',
-    fontSize: 24,
-    padding: 5,
-  },
-  roomTypeContainer: {
-    borderWidth: 1,
-    width: '90%',
-    margin: 10
   }
 });

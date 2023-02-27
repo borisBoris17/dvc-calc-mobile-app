@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet, View } from 'react-native'; import Constants from 'expo-constants';
-import { Button, Text } from 'react-native-paper';
+import { Button, Text, useTheme } from 'react-native-paper';
 
 import { IconButton } from 'react-native-paper';
 import ResortComponent from './ResortComponent';
@@ -17,6 +17,54 @@ export default function ResultsComponent({ route, navigation, resorts, setResort
 
   const [openResortFilter, setOpenResortFilter] = useState(false);
   const [openRoomTypeFilter, setOpenRoomTypeFilter] = useState(false);
+
+  const theme = useTheme();
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    statusBar: {
+      height: Constants.statusBarHeight,
+      backgroundColor: theme.colors.primaryContainer,
+    },
+    backButton: {
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: theme.colors.primaryContainer,
+    },
+    dateDisplay: {
+      flex: 1,
+      textAlign: 'right',
+      color: theme.colors.primary,
+      paddingRight: 20,
+      fontSize: 24
+    },
+    scrollStyle: {
+      flex: 1,
+      backgroundColor: theme.colors.primaryContainer,
+    },
+    resortHeader: {
+      backgroundColor: theme.colors.primary,
+      color: 'white',
+      fontSize: 24,
+      padding: 10,
+    },
+    filters: {
+      backgroundColor: theme.colors.primaryContainer,
+      display: 'flex',
+      flexDirection: 'row',
+    },
+    filterButton: {
+      margin: 5,
+    },
+    buttonText: {
+      fontSize: 20
+    }
+  });
 
   const handleBack = () => {
     navigation.navigate('Search', {})
@@ -98,57 +146,3 @@ export default function ResultsComponent({ route, navigation, resorts, setResort
     </>
   )
 }
-
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#d5edf1',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  statusBar: {
-    height: Constants.statusBarHeight,
-    backgroundColor: '#d5edf1',
-  },
-  backButton: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#d5edf1',
-  },
-  dateDisplay: {
-    flex: 1,
-    textAlign: 'right',
-    color: '#00232c',
-    paddingRight: 20,
-    fontSize: 24
-  },
-  dateRangeButton: {
-    padding: 10,
-    borderWidth: 2,
-    borderRadius: 5,
-    backgroundColor: '#c3dddf'
-  },
-  scrollStyle: {
-    flex: 1,
-    backgroundColor: '#d5edf1',
-  },
-  resortHeader: {
-    backgroundColor: '#00232c',
-    color: 'white',
-    fontSize: 24,
-    padding: 10,
-  },
-  filters: {
-    backgroundColor: '#d5edf1',
-    display: 'flex',
-    flexDirection: 'row',
-  },
-  filterButton: {
-    margin: 5,
-  },
-  buttonText: {
-    fontSize: 20
-  }
-});
