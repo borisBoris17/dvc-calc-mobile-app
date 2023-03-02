@@ -133,12 +133,17 @@ export default function UseYearComponent({ contractsForUseYear, useYear }) {
     const availablePoints = [];
     while (yearToDisplay <= lastYearToDisplay) {
       // fetch yearly point for contract and year
-      availablePoints.push(yearlyPoints.filter(yearlyPoint => yearlyPoint.contractId === contractId && yearlyPoint.year === yearToDisplay)[0]);
+
+      const foundYearlyPoints = yearlyPoints.filter(yearlyPoint => yearlyPoint.contractId === contractId && yearlyPoint.year === yearToDisplay)[0]
+      if (foundYearlyPoints != undefined) {
+        availablePoints.push(foundYearlyPoints);
+      }
       yearToDisplay++;
     }
     return (
-      availablePoints?.map(availablePoint => (
+      availablePoints?.map(availablePoint => (<>
         <View style={styles.yearRow}><Text style={styles.yearLabel}>{availablePoint.year}</Text><Text style={styles.availablePoints}>{`${availablePoint.amountAvailable} pts`}</Text></View>
+      </>
       )))
   }
 

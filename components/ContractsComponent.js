@@ -25,10 +25,11 @@ const contractsSameUseYear = [{
 }]
 
 export function ContractsComponent({db}) {
-  const [contractPoints, setContractPoints] = useState(undefined);
+  const [contractPoints, setContractPoints] = useState('');
   const [openAddContract, setOpenAddContract] = useState(false);
   const [homeResort, setHomeResort] = useState({
     value: '',
+    selected_id: '',
     list: [],
     selectedList: [],
     error: '',
@@ -132,6 +133,19 @@ export function ContractsComponent({db}) {
     }
   });
 
+  const saveSaveContract = () => {
+    console.log(homeResort)
+    console.log(useYear.value)
+    const newContract = {
+      home_resort_id: homeResort.selected_id,
+      points: Number(contractPoints),
+      use_year: useYear.value,
+      expiration: 2071,
+    }
+    
+    onDismissAddContracts();
+  }
+
   const onDismissAddContracts = () => {
     setContractPoints(undefined)
     setUseYear({...useYear, value: ''})
@@ -139,8 +153,8 @@ export function ContractsComponent({db}) {
     setOpenAddContract(false)
   }
 
-  const handlePointsChange = (value) => {
-    setContractPoints(value)
+  const handlePointsChange = (text) => {
+    setContractPoints(text)
   }
 
   return (
@@ -166,9 +180,11 @@ export function ContractsComponent({db}) {
               label="Home Resort"
               value={homeResort.value}
               onSelection={(value) => {
+                console.log('value', value)
                 setHomeResort({
                   ...homeResort,
                   value: value.text,
+                  selected_id: value.selectedList[0]?._id,
                   selectedList: value.selectedList,
                   error: '',
                 });
@@ -178,7 +194,7 @@ export function ContractsComponent({db}) {
               errorText={homeResort.error}
               multiEnable={false}
             />
-            <TextInput label='Points' value={contractPoints} onChange={value => handlePointsChange(value)}></TextInput>
+            <TextInput label='Points' value={contractPoints} onChangeText={text => handlePointsChange(text)}></TextInput>
             <PaperSelect
               label="Use Year"
               value={useYear.value}
@@ -195,7 +211,7 @@ export function ContractsComponent({db}) {
               errorText={useYear.error}
               multiEnable={false}
             />
-            <Button onPress={onDismissAddContracts} labelStyle={styles.addButtonText} style={styles.saveButton}>Save</Button>
+            <Button onPress={saveSaveContract} labelStyle={styles.addButtonText} style={styles.saveButton}>Save</Button>
           </View>
 
         </Modal>

@@ -1,4 +1,3 @@
-import { StyleSheet } from 'react-native'; import Constants from 'expo-constants';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
   enGB,
@@ -11,8 +10,6 @@ import * as FileSystem from "expo-file-system";
 import { Asset } from "expo-asset";
 import { BottomNavigation, MD3LightTheme as DefaultTheme, Provider } from 'react-native-paper';
 import CalculatorComponent from './components/CalculatorComponent';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { Ionicons } from '@expo/vector-icons';
 import { ContractsComponent } from './components/ContractsComponent';
 
 const Stack = createNativeStackNavigator();
