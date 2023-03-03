@@ -1,10 +1,57 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'; 
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useState } from 'react';
-import { Card } from 'react-native-paper';
+import { Card, useTheme } from 'react-native-paper';
 
 
 export default function ViewTypeComponent({ viewType }) {
   const [showDetails, setShowDetails] = useState(false);
+
+  const theme = useTheme();
+
+  const styles = StyleSheet.create({
+    viewTypeName: {
+      flex: 1,
+      fontSize: 14,
+      fontWeight: 'bold',
+      padding: 5
+    },
+    totalPoints: {
+      padding: 5
+    },
+    totalPointsText: {
+      fontSize: 34,
+      textAlign: 'center',
+      marginBottom: -5
+    },
+    pointsLabel: {
+      fontSize: 14,
+      textAlign: 'center'
+    },
+    viewTypeContainer: {
+      width: '90%',
+      borderRadius: 5,
+      margin: 10,
+      marginRight: 0,
+      padding: 5,
+      backgroundColor: theme.colors.tertiary,
+    },
+    totalPointSection: {
+      display: 'flex',
+      flexDirection: 'row',
+    },
+    detailsButton: {
+      fontSize: 14,
+      textDecorationLine: 'underline',
+      padding: 5
+    },
+    detail: {
+      flexDirection: 'row',
+      margin: 5
+    },
+    nightlyPoints: {
+      flex: 1,
+    }
+  });
 
   return (
     <Card style={styles.viewTypeContainer}>
@@ -31,47 +78,3 @@ export default function ViewTypeComponent({ viewType }) {
   )
 }
 
-const styles = StyleSheet.create({
-  viewTypeName: {
-    flex: 1,
-    fontSize: 14,
-    fontWeight: 'bold',
-    padding: 5
-  },
-  totalPoints: {
-    padding: 5
-  },
-  totalPointsText: {
-    fontSize: 34,
-    textAlign: 'center',
-    marginBottom: -5
-  },
-  pointsLabel: {
-    fontSize: 14,
-    textAlign: 'center'
-  },
-  viewTypeContainer: {
-    width: '90%',
-    borderRadius: 5,
-    margin: 10,
-    marginRight: 0,
-    padding: 5,
-    backgroundColor: '#f7fbfc',
-  },
-  totalPointSection: {
-    display: 'flex',
-    flexDirection: 'row',
-  },
-  detailsButton: {
-    fontSize: 14,
-    textDecorationLine: 'underline',
-    padding: 5
-  },
-  detail: {
-    flexDirection: 'row',
-    margin: 5
-  },
-  nightlyPoints: {
-    flex: 1,
-  }
-});

@@ -12,14 +12,48 @@ export function formatDate(date) {
   return [year, month, day].join('-');
 }
 
+export const monthToNumberMap = new Map();
+monthToNumberMap.set('January', 0);
+monthToNumberMap.set('February', 1);
+monthToNumberMap.set('March', 2);
+monthToNumberMap.set('April', 3);
+monthToNumberMap.set('May', 4);
+monthToNumberMap.set('June', 5);
+monthToNumberMap.set('July', 6);
+monthToNumberMap.set('August', 7);
+monthToNumberMap.set('September', 8);
+monthToNumberMap.set('October', 9);
+monthToNumberMap.set('November', 10);
+monthToNumberMap.set('December', 11);
+
+export const expirationDateMap = new Map();
+expirationDateMap.set('Riviera', 2070);
+expirationDateMap.set('Vero Beach', 2042);
+expirationDateMap.set('Saratoga Springs', 2054);
+expirationDateMap.set('Polynesian', 2066);
+expirationDateMap.set('Old Key West', 2042);
+expirationDateMap.set('Hilton Head Island', 2042);
+expirationDateMap.set('Grand Floridian', 2064);
+expirationDateMap.set('Grand Californian', 2060);
+expirationDateMap.set('Copper Creek', 2068);
+expirationDateMap.set('Boulder Ridge', 2042);
+expirationDateMap.set('Boardwalk', 2042);
+expirationDateMap.set('Beach Club', 2042);
+expirationDateMap.set('Bay Lake Tower', 2060);
+expirationDateMap.set('Aulani', 2062);
+expirationDateMap.set('Animal Kingdom Lodge', 2057);
+
 export const runTransaction = (db, sql) => {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     db.transaction(tx => {
       tx.executeSql(
         sql,
         undefined,
         (_, { rows: { _array } }) => resolve(_array),
-        (txObj, error) => console.log('Error ', error)
+        (txObj, error) => {
+          console.log('Error ', error, sql)
+          resolve(undefined)
+        }
       );
     })
   })
@@ -92,4 +126,59 @@ export async function fetchResults(db, range) {
     'resorts': resortArray
   };
   return responseObj;
+}
+
+export const createContract = async (db, contract) => {
+  const { home_resort_id, points, use_year, expiration } = contract;
+
+  const query = `INSERT INTO CONTRACT (home_resort_id, points, use_year, expiration) 
+                  VALUES(${home_resort_id}, ${points}, "${use_year}", ${expiration}) RETURNING *;`
+  const insertedContract = await runTransaction(db, query);
+  // create the point allotment rows for this contract
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth()
+  let previousYear = currentDate.getFullYear() - 1
+
+  const lastYearToCreateAllotment = insertedContract[0].expiration - 1;
+  const pointAllotments = []
+  while (previousYear <= lastYearToCreateAllotment) {
+    const pointsAllotment = {
+      contract_id: insertedContract[0].contract_id,
+      year: previousYear,
+      points_available: insertedContract[0].points,
+      points_banked: 0,
+      points_borrowed: 0,
+    }
+    const newAllotment = await createPointAllotment(db, pointsAllotment);
+    
+    pointAllotments.push({
+      point_allotment_id: newAllotment.point_allotment_id, 
+      contract_id: newAllotment.contract_id, 
+      year: newAllotment.year, 
+      points_available: newAllotment.points_available,
+      points_banked: newAllotment.points_banked,
+      points_borrowed: newAllotment.points_borrowed,
+    })
+    previousYear++
+  }
+  const builtContract = {...insertedContract[0], allotments: pointAllotments}
+  return builtContract;
+}
+
+export const createPointAllotment = async (db, pointsAllotment) => {
+  const { contract_id, year, points_available, points_banked, points_borrowed } = pointsAllotment;
+
+  const query = `INSERT INTO POINT_ALLOTMENT (contract_id, year, points_available, points_banked, points_borrowed) 
+                  VALUES(${contract_id}, ${year}, "${points_available}", ${points_banked}, ${points_borrowed}) RETURNING *;`
+  const insertedAllotment = await runTransaction(db, query);
+  return insertedAllotment[0];
+}
+
+export const removeContract = async (db, contract) => {
+  await Promise.all(contract.allotments.map(async allotment => {
+    const deleteAllotmentQuery = `delete from point_allotment where point_allotment_id = ${allotment.point_allotment_id}`
+    await runTransaction(db, deleteAllotmentQuery);
+  }))
+  const deleteContractQuery = `delete from contract where contract_id = ${contract.contract_id}`
+  await runTransaction(db, deleteContractQuery)
 }
