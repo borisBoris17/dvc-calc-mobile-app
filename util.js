@@ -13,18 +13,18 @@ export function formatDate(date) {
 }
 
 export const monthToNumberMap = new Map();
-monthToNumberMap.set('January', 1);
-monthToNumberMap.set('February', 2);
-monthToNumberMap.set('March', 3);
-monthToNumberMap.set('April', 4);
-monthToNumberMap.set('May', 5);
-monthToNumberMap.set('June', 6);
-monthToNumberMap.set('July', 7);
-monthToNumberMap.set('August', 8);
-monthToNumberMap.set('September', 9);
-monthToNumberMap.set('October', 10);
-monthToNumberMap.set('November', 11);
-monthToNumberMap.set('December', 12);
+monthToNumberMap.set('January', 0);
+monthToNumberMap.set('February', 1);
+monthToNumberMap.set('March', 2);
+monthToNumberMap.set('April', 3);
+monthToNumberMap.set('May', 4);
+monthToNumberMap.set('June', 5);
+monthToNumberMap.set('July', 6);
+monthToNumberMap.set('August', 7);
+monthToNumberMap.set('September', 8);
+monthToNumberMap.set('October', 9);
+monthToNumberMap.set('November', 10);
+monthToNumberMap.set('December', 11);
 
 export const expirationDateMap = new Map();
 expirationDateMap.set('Riviera', 2070);
