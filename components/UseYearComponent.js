@@ -73,7 +73,7 @@ export default function UseYearComponent({ contractsForUseYear, useYear, handleD
     let yearToDisplay = currentYear
     // convert useYear to - based index
     // for feb its 1 
-    const useYearIndex = monthToNumberMap.get(contract.useYear);
+    const useYearIndex = monthToNumberMap.get(contract.use_year);
     // fetch all the yearly point rows for the contract - display the current and the next two (3 total)
     if (useYearIndex > currentMonth) {
       yearToDisplay = currentYear - 1;
