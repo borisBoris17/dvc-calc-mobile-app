@@ -19,7 +19,7 @@ export const runTransaction = (db, sql) => {
         sql,
         undefined,
         (_, { rows: { _array } }) => resolve(_array),
-        (txObj, error) => console.log('Error ', error)
+        (txObj, error) => console.log('Error ', error, sql)
       );
     })
   })
@@ -92,4 +92,65 @@ export async function fetchResults(db, range) {
     'resorts': resortArray
   };
   return responseObj;
+}
+
+
+export const monthToNumberMap = new Map();
+monthToNumberMap.set('January', 1);
+monthToNumberMap.set('February', 2);
+monthToNumberMap.set('March', 3);
+monthToNumberMap.set('April', 4);
+monthToNumberMap.set('May', 5);
+monthToNumberMap.set('June', 6);
+monthToNumberMap.set('July', 7);
+monthToNumberMap.set('August', 8);
+monthToNumberMap.set('September', 9);
+monthToNumberMap.set('October', 10);
+monthToNumberMap.set('November', 11);
+monthToNumberMap.set('December', 12);
+
+export const createContract = async (db, contract) => {
+  const { home_resort_id, points, use_year, expiration } = contract;
+
+  const query = `INSERT INTO CONTRACT (home_resort_id, points, use_year, expiration) 
+                  VALUES(${home_resort_id}, ${points}, "${use_year}", ${expiration}) RETURNING *;`
+  const insertedContract = await runTransaction(db, query);
+  // create the point allotment rows for this contract
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth()
+  let previousYear = currentDate.getFullYear() - 1
+
+  const lastYearToCreateAllotment = insertedContract[0].expiration - 1;
+  const pointAllotments = []
+  while (previousYear <= lastYearToCreateAllotment) {
+    const pointsAllotment = {
+      contract_id: insertedContract[0].contract_id,
+      year: previousYear,
+      points_available: insertedContract[0].points,
+      points_banked: 0,
+      points_borrowed: 0,
+    }
+    const newAllotment = await createPointAllotment(db, pointsAllotment);
+    
+    pointAllotments.push({
+      point_allotment_id: newAllotment.point_allotment_id, 
+      contract_id: newAllotment.contract_id, 
+      year: newAllotment.year, 
+      points_available: newAllotment.points_available,
+      points_banked: newAllotment.points_banked,
+      points_borrowed: newAllotment.points_borrowed,
+    })
+    previousYear++
+  }
+  const builtContract = {...insertedContract[0], allotments: pointAllotments}
+  return builtContract;
+}
+
+export const createPointAllotment = async (db, pointsAllotment) => {
+  const { contract_id, year, points_available, points_banked, points_borrowed } = pointsAllotment;
+
+  const query = `INSERT INTO POINT_ALLOTMENT (contract_id, year, points_available, points_banked, points_borrowed) 
+                  VALUES(${contract_id}, ${year}, "${points_available}", ${points_banked}, ${points_borrowed}) RETURNING *;`
+  const insertedAllotment = await runTransaction(db, query);
+  return insertedAllotment[0];
 }
