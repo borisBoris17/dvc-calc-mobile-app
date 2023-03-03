@@ -12,6 +12,37 @@ export function formatDate(date) {
   return [year, month, day].join('-');
 }
 
+export const monthToNumberMap = new Map();
+monthToNumberMap.set('January', 1);
+monthToNumberMap.set('February', 2);
+monthToNumberMap.set('March', 3);
+monthToNumberMap.set('April', 4);
+monthToNumberMap.set('May', 5);
+monthToNumberMap.set('June', 6);
+monthToNumberMap.set('July', 7);
+monthToNumberMap.set('August', 8);
+monthToNumberMap.set('September', 9);
+monthToNumberMap.set('October', 10);
+monthToNumberMap.set('November', 11);
+monthToNumberMap.set('December', 12);
+
+export const expirationDateMap = new Map();
+expirationDateMap.set('Riviera', 2070);
+expirationDateMap.set('Vero Beach', 2042);
+expirationDateMap.set('Saratoga Springs', 2054);
+expirationDateMap.set('Polynesian', 2066);
+expirationDateMap.set('Old Key West', 2042);
+expirationDateMap.set('Hilton Head Island', 2042);
+expirationDateMap.set('Grand Floridian', 2064);
+expirationDateMap.set('Grand Californian', 2060);
+expirationDateMap.set('Copper Creek', 2068);
+expirationDateMap.set('Boulder Ridge', 2042);
+expirationDateMap.set('Boardwalk', 2042);
+expirationDateMap.set('Beach Club', 2042);
+expirationDateMap.set('Bay Lake Tower', 2060);
+expirationDateMap.set('Aulani', 2062);
+expirationDateMap.set('Animal Kingdom Lodge', 2057);
+
 export const runTransaction = (db, sql) => {
   return new Promise((resolve, reject) => {
     db.transaction(tx => {
@@ -97,21 +128,6 @@ export async function fetchResults(db, range) {
   return responseObj;
 }
 
-
-export const monthToNumberMap = new Map();
-monthToNumberMap.set('January', 1);
-monthToNumberMap.set('February', 2);
-monthToNumberMap.set('March', 3);
-monthToNumberMap.set('April', 4);
-monthToNumberMap.set('May', 5);
-monthToNumberMap.set('June', 6);
-monthToNumberMap.set('July', 7);
-monthToNumberMap.set('August', 8);
-monthToNumberMap.set('September', 9);
-monthToNumberMap.set('October', 10);
-monthToNumberMap.set('November', 11);
-monthToNumberMap.set('December', 12);
-
 export const createContract = async (db, contract) => {
   const { home_resort_id, points, use_year, expiration } = contract;
 
@@ -156,4 +172,13 @@ export const createPointAllotment = async (db, pointsAllotment) => {
                   VALUES(${contract_id}, ${year}, "${points_available}", ${points_banked}, ${points_borrowed}) RETURNING *;`
   const insertedAllotment = await runTransaction(db, query);
   return insertedAllotment[0];
+}
+
+export const removeContract = async (db, contract) => {
+  await Promise.all(contract.allotments.map(async allotment => {
+    const deleteAllotmentQuery = `delete from point_allotment where point_allotment_id = ${allotment.point_allotment_id}`
+    await runTransaction(db, deleteAllotmentQuery);
+  }))
+  const deleteContractQuery = `delete from contract where contract_id = ${contract.contract_id}`
+  await runTransaction(db, deleteContractQuery)
 }
