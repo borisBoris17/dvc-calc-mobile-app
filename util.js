@@ -13,13 +13,16 @@ export function formatDate(date) {
 }
 
 export const runTransaction = (db, sql) => {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     db.transaction(tx => {
       tx.executeSql(
         sql,
         undefined,
         (_, { rows: { _array } }) => resolve(_array),
-        (txObj, error) => console.log('Error ', error, sql)
+        (txObj, error) => {
+          console.log('Error ', error, sql)
+          resolve(undefined)
+        }
       );
     })
   })

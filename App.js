@@ -11,6 +11,7 @@ import { Asset } from "expo-asset";
 import { BottomNavigation, MD3LightTheme as DefaultTheme, Provider } from 'react-native-paper';
 import CalculatorComponent from './components/CalculatorComponent';
 import { ContractsComponent } from './components/ContractsComponent';
+import { runTransaction } from './util';
 
 const Stack = createNativeStackNavigator();
 
@@ -28,50 +29,60 @@ export default function App() {
     const dbName = 'dvcCalc.db'
     const localURI = localFolder + '/' + dbName
 
-    if (!(await FileSystem.getInfoAsync(localFolder)).exists) {
-      await FileSystem.makeDirectoryAsync(localFolder)
-    }
+    const existingDB = SQLite.openDatabase(dbName)
 
-    let asset = Asset.fromModule(require('./assets/db/dvcCalc.db'))
+    const queryResults = await runTransaction(existingDB, 'select * from contract');
+    console.log('check existing db')
+    if (queryResults === undefined) {
+      console.log('need to instantiate db')
 
-    if (!asset.downloaded) {
-      await asset.downloadAsync().then(value => {
-        asset = value
-      })
+      if (!(await FileSystem.getInfoAsync(localFolder)).exists) {
+        await FileSystem.makeDirectoryAsync(localFolder)
+      }
 
-      let remoteURI = asset.localUri
+      let asset = Asset.fromModule(require('./assets/db/dvcCalc.db'))
 
-      await FileSystem.copyAsync({
-        from: remoteURI,
-        to: localURI
-      }).catch(error => {
-        console.log('asset copyDatabase - finished with error: ' + error)
-      })
-    } else {
-      // for iOS  -Asset is downloaded on call Asset.fromModule(), just copy from cache to local file
-      if (asset.localUri || asset.uri.startsWith("asset") || asset.uri.startsWith("file")) {
+      if (!asset.downloaded) {
+        await asset.downloadAsync().then(value => {
+          asset = value
+        })
 
-        let remoteURI = asset.localUri || asset.uri
+        let remoteURI = asset.localUri
 
         await FileSystem.copyAsync({
           from: remoteURI,
           to: localURI
         }).catch(error => {
-          console.log("local copyDatabase - finished with error: " + error)
+          console.log('asset copyDatabase - finished with error: ' + error)
         })
-      } else if (asset.uri.startsWith("http") || asset.uri.startsWith("https")) {
-        let remoteURI = asset.uri
+      } else {
+        // for iOS  -Asset is downloaded on call Asset.fromModule(), just copy from cache to local file
+        if (asset.localUri || asset.uri.startsWith("asset") || asset.uri.startsWith("file")) {
 
-        await FileSystem.downloadAsync(remoteURI, localURI)
-          .catch(error => {
-            console.log("local downloadAsync - finished with error: " + error)
+          let remoteURI = asset.localUri || asset.uri
+
+          await FileSystem.copyAsync({
+            from: remoteURI,
+            to: localURI
+          }).catch(error => {
+            console.log("local copyDatabase - finished with error: " + error)
           })
+        } else if (asset.uri.startsWith("http") || asset.uri.startsWith("https")) {
+          let remoteURI = asset.uri
+
+          await FileSystem.downloadAsync(remoteURI, localURI)
+            .catch(error => {
+              console.log("local downloadAsync - finished with error: " + error)
+            })
+        }
       }
+      if (db !== undefined) {
+        await db.closeAsync()
+      }
+      setDb(SQLite.openDatabase(dbName));
+    } else {
+      setDb(existingDB)
     }
-    if (db !== undefined) {
-      await db.closeAsync()
-    }
-    setDb(SQLite.openDatabase(dbName));
   }
 
   useEffect(() => {
