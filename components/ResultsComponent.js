@@ -7,16 +7,20 @@ import { LogBox } from 'react-native';
 import { useCallback, useState } from 'react';
 import ResortModalComponent from './ResortModalComponent';
 import RoomTypeModalComponent from './RoomTypeModalComponent';
+import SaveTripComponent from './SaveTripComponent';
+import { formatDate } from '../util';
 
 LogBox.ignoreLogs([
   'Non-serializable values were found in the navigation state',
 ]);
 
-export default function ResultsComponent({ route, navigation, resorts, setResorts, roomTypes, setRoomTypes }) {
+export default function ResultsComponent({ route, navigation, resorts, setResorts, roomTypes, setRoomTypes, db }) {
   const { results, checkInDate, checkOutDate } = route.params;
 
   const [openResortFilter, setOpenResortFilter] = useState(false);
   const [openRoomTypeFilter, setOpenRoomTypeFilter] = useState(false);
+  const [openSaveTrip, setOpenSaveTrip] = useState(false)
+  const [trip, setTrip] = useState({})
 
   const theme = useTheme();
 
@@ -78,10 +82,6 @@ export default function ResultsComponent({ route, navigation, resorts, setResort
     setOpenRoomTypeFilter(false);
   }, [setOpenResortFilter]);
 
-  function formatDate(date) {
-    return date.toLocaleDateString('en-us', { year: "numeric", month: "short", day: "numeric" })
-  }
-
   const printResort = (resortName, resorts) => {
     const filteredArray = resorts.filter(function (resort) {
       return resort.resort_name === resortName;
@@ -89,7 +89,7 @@ export default function ResultsComponent({ route, navigation, resorts, setResort
 
     if (filteredArray.length > 0) {
       return (
-        <ResortComponent resort={filteredArray[0]} roomTypes={roomTypes}></ResortComponent>
+        <ResortComponent resort={filteredArray[0]} roomTypes={roomTypes} setOpenSaveTrip={setOpenSaveTrip} setTrip={setTrip} trip={trip}></ResortComponent>
       )
     }
     return '';
@@ -143,6 +143,7 @@ export default function ResultsComponent({ route, navigation, resorts, setResort
       </ScrollView>
       <ResortModalComponent openResorts={openResortFilter} onDismissResorts={onDismissResorts} resorts={resorts} setResorts={setResorts} />
       <RoomTypeModalComponent openRoomTypes={openRoomTypeFilter} onDismissRoomTypes={onDismissRoomTypes} roomTypes={roomTypes} setRoomTypes={setRoomTypes} />
+      <SaveTripComponent db={db} openSaveTrip={openSaveTrip} setOpenSaveTrip={setOpenSaveTrip} setTrip={setTrip} trip={trip} checkInDate={checkInDate} checkOutDate={checkOutDate}></SaveTripComponent>
     </>
   )
 }

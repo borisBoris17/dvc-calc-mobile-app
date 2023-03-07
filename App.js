@@ -31,7 +31,7 @@ export default function App() {
 
     const existingDB = SQLite.openDatabase(dbName)
 
-    const queryResults = await runTransaction(existingDB, 'select * from contract');
+    const queryResults = await runTransaction(existingDB, 'select * from trip');
     console.log('check existing db')
     if (queryResults === undefined) {
       console.log('need to instantiate db')

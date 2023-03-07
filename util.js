@@ -1,4 +1,4 @@
-export function formatDate(date) {
+export function formatDateForQuery(date) {
   var d = new Date(date),
     month = '' + (d.getMonth() + 1),
     day = '' + d.getDate(),
@@ -10,6 +10,10 @@ export function formatDate(date) {
     day = '0' + day;
 
   return [year, month, day].join('-');
+}
+
+export function formatDate(date) {
+  return date.toLocaleDateString('en-us', { year: "numeric", month: "short", day: "numeric" })
 }
 
 export const monthToNumberMap = new Map();
@@ -91,7 +95,7 @@ export async function fetchResults(db, range) {
         let totalPointsNeeded = 0;
         let dates = [];
         while (currentDate < range.endDate) {
-          const amountForDay = await fetchPointsForNight(db, viewType.view_type_id, formatDate(currentDate), currentDate);
+          const amountForDay = await fetchPointsForNight(db, viewType.view_type_id, formatDateForQuery(currentDate), currentDate);
           // add the date need for that day to the response obj
           // total the amount for the whole stay
           totalPointsNeeded = totalPointsNeeded + amountForDay;
@@ -150,18 +154,18 @@ export const createContract = async (db, contract) => {
       points_borrowed: 0,
     }
     const newAllotment = await createPointAllotment(db, pointsAllotment);
-    
+
     pointAllotments.push({
-      point_allotment_id: newAllotment.point_allotment_id, 
-      contract_id: newAllotment.contract_id, 
-      year: newAllotment.year, 
+      point_allotment_id: newAllotment.point_allotment_id,
+      contract_id: newAllotment.contract_id,
+      year: newAllotment.year,
       points_available: newAllotment.points_available,
       points_banked: newAllotment.points_banked,
       points_borrowed: newAllotment.points_borrowed,
     })
     previousYear++
   }
-  const builtContract = {...insertedContract[0], allotments: pointAllotments}
+  const builtContract = { ...insertedContract[0], allotments: pointAllotments }
   return builtContract;
 }
 
@@ -181,4 +185,14 @@ export const removeContract = async (db, contract) => {
   }))
   const deleteContractQuery = `delete from contract where contract_id = ${contract.contract_id}`
   await runTransaction(db, deleteContractQuery)
+}
+
+export const createTrip = async (db, trip) => {
+  const { contract_id, points, pointsBorrowedFromLastYear, pointsBorrowedFromNextYear, resortName, viewTypeName, roomTypeName, checkInDate, checkOutDate } = trip
+
+  const query = `INSERT INTO TRIP (contract_id, resort_name, room_type_name, view_type_name, check_in_date, check_out_date, points, borrowed_from_prev, borrowed_from_next)
+                  VALUES (${contract_id}, "${resortName}", "${roomTypeName}", "${viewTypeName}", "${formatDateForQuery(checkInDate)}", "${formatDateForQuery(checkOutDate)}", ${points}, ${pointsBorrowedFromLastYear}, ${pointsBorrowedFromNextYear}) RETURNING *;`
+
+  const insertedTrip = await runTransaction(db, query);
+  return insertedTrip[0];
 }

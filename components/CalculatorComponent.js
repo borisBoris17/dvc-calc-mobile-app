@@ -52,7 +52,7 @@ export default function CalculatorComponent({ db }) {
         <Stack.Screen
           options={{ headerShown: false }}
           name="Results">
-          {(props) => <ResultsComponent {...props} resorts={resorts} setResorts={setResorts} roomTypes={roomTypes} setRoomTypes={setRoomTypes} />}
+          {(props) => <ResultsComponent {...props} db={db} resorts={resorts} setResorts={setResorts} roomTypes={roomTypes} setRoomTypes={setRoomTypes} />}
         </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
