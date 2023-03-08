@@ -25,7 +25,7 @@ export default function CalculatorComponent({ db }) {
   const fetchResorts = async () => {
     if (db !== undefined) {
       const foundResorts = await runTransaction(db, 'select * from resort order by resort_id ASC;');
-      const builtResorts = foundResorts.map(resort => {
+      const builtResorts = foundResorts?.map(resort => {
         return { selected: true, name: resort.name }
       });
       setResorts(builtResorts)

@@ -139,7 +139,7 @@ export default function App() {
       case 'calculator':
         return <CalculatorComponent jumpTo={jumpTo} db={db} />;
       case 'contract':
-        return <ContractsComponent db={db} />;
+        return <ContractsComponent db={db} index={index} />;
     }
   }
 

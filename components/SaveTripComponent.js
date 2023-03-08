@@ -22,6 +22,7 @@ export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, s
     selectedList: [],
     error: '',
   });
+  const [errorMsg, setErrorMsg] = useState('');
 
   const theme = useTheme();
 
@@ -46,6 +47,15 @@ export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, s
       fontSize: 24,
       borderBottomColor: theme.colors.primary,
       margin: 10
+    },
+    errorContainer: {
+      display: 'flex',
+    },
+    errorMessage: {
+      marginHorizontal: 10,
+      marginVertical: 10,
+      fontSize: 22,
+      color: 'red',
     },
     tripContainer: {
       display: 'flex',
@@ -126,8 +136,9 @@ export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, s
   }
 
   const saveTrip = async () => {
-    const selectedContract = contract.selected_id;
-    if (selectedContract === -1) {
+    setErrorMsg('')
+    const selectedContractId = contract.selected_id;
+    if (selectedContractId === -1) {
       const newTrip = {
         contract_id: null,
         points: trip.points,
@@ -144,6 +155,46 @@ export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, s
       onDismissSaveTrip()
       return
     }
+    const checkInDateObj = new Date(checkInDate);
+    const monthOfTripMonthIndex = checkInDateObj.getMonth();
+    const yearOfTrip = checkInDateObj.getFullYear()
+    const selectedContract = (await runTransaction(db, `select * from contract where contract_id = ${selectedContractId}`))[0];
+    const useYearOnContractMonthIndex = monthToNumberMap.get(selectedContract);
+    const yearForPointAllotment = yearOfTrip;
+    if (monthOfTripMonthIndex < useYearOnContractMonthIndex) {
+      yearForPointAllotment -= 1;
+    }
+    const pointAllotmentForUseYear = (await runTransaction(db, `select * from point_allotment where contract_id = ${selectedContractId} and year = ${yearForPointAllotment}`))[0]
+    let pointsOnCurrentPointAllotment = trip.points
+    let pointAllotmentForLastYear = undefined
+    let pointAllotmentForNextYear = undefined
+    if (borrowedFromLastYear && borrowedFromLastYear != '') {
+      pointsOnCurrentPointAllotment = pointsOnCurrentPointAllotment - borrowedFromLastYear
+      pointAllotmentForLastYear = (await runTransaction(db, `select * from point_allotment where contract_id = ${selectedContractId} and year = ${yearForPointAllotment - 1}`))[0]
+    }
+    if (borrowedFromNextYear && borrowedFromNextYear != '') {
+      pointsOnCurrentPointAllotment = pointsOnCurrentPointAllotment - borrowedFromLastYear
+      pointAllotmentForNextYear = (await runTransaction(db, `select * from point_allotment where contract_id = ${selectedContractId} and year = ${yearForPointAllotment + 1}`))[0]
+    }
+    if (pointAllotmentForUseYear.points_available < pointsOnCurrentPointAllotment) {
+      setErrorMsg('Not enough points in the contract. You can save the trip without setting a Contract.')
+      return
+    }
+    if (pointAllotmentForLastYear) {
+      if (pointAllotmentForLastYear.points_available < borrowedFromLastYear) {
+        setErrorMsg(`Not enough points to borrow from ${yearForPointAllotment - 1}.`)
+        return
+      }
+      await runTransaction(db, `update point_allotment set points_available = ${pointAllotmentForLastYear.points_available - borrowedFromLastYear} where point_allotment_id = ${pointAllotmentForLastYear.point_allotment_id}`)
+    }
+    if (pointAllotmentForNextYear) {
+      if (pointAllotmentForNextYear.points_available < borrowedFromNextYear) {
+        setErrorMsg(`Not enough points to borrow from ${yearForPointAllotment + 1}.`)
+        return
+      }
+      await runTransaction(db, `update point_allotment set points_available = ${pointAllotmentForNextYear.points_available - borrowedFromNextYear} where point_allotment_id = ${pointAllotmentForNextYear.point_allotment_id}`)
+    }
+    await runTransaction(db, `update point_allotment set points_available = ${pointAllotmentForUseYear.points_available - pointsOnCurrentPointAllotment} where point_allotment_id = ${pointAllotmentForUseYear.point_allotment_id}`)
     const newTrip = {
       contract_id: contract.selected_id,
       points: trip.points,
@@ -164,6 +215,9 @@ export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, s
       <View style={styles.modalTitleRow}>
         <Text style={styles.modalTitle}>Save Trip</Text>
       </View>
+      {errorMsg !== '' ? <View style={styles.errorContainer}>
+        <Text style={styles.errorMessage}>{errorMsg}</Text>
+      </View> : ''}
       <View style={styles.tripContainer}>
         <Text style={styles.resortNameStyle}>{trip.resortName}</Text>
         <Text style={styles.viewAndRoomStyle}>{trip.viewTypeName} - {trip.roomTypeName}</Text>
@@ -184,7 +238,6 @@ export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, s
         />
       </View>
       <View style={styles.borrowFromInputContainer}>
-        {console.log(contract.selected_id)}
         <TextInput disabled={contract.selectedList.length === 0 || contract.selected_id === -1} mode='outlined' label='Amount Borrowed from Last Year' value={borrowedFromLastYear} onChangeText={text => handleUpdateBorrowFrom(text, setBorrowedFromLastYear)}></TextInput>
       </View>
       <View style={styles.borrowFromInputContainer}>
