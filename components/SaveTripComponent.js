@@ -1,5 +1,5 @@
-import { StyleSheet, View, Text } from 'react-native';
-import { Button, Modal, TextInput, useTheme } from 'react-native-paper';
+import { StyleSheet, View, Text, ScrollView } from 'react-native';
+import { Button, HelperText, Modal, TextInput, useTheme } from 'react-native-paper';
 import { useState, useEffect } from 'react';
 import { PaperSelect } from 'react-native-paper-select';
 import { createTrip, formatDate, monthToNumberMap, runTransaction } from '../util';
@@ -15,14 +15,9 @@ export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, s
   });
   const [borrowedFromLastYear, setBorrowedFromLastYear] = useState(undefined);
   const [borrowedFromNextYear, setBorrowedFromNextYear] = useState(undefined);
-  const [borrowYear, setBorrowYear] = useState({
-    value: '',
-    selected_id: '',
-    list: [],
-    selectedList: [],
-    error: '',
-  });
-  const [errorMsg, setErrorMsg] = useState('');
+  const [lastYearErrorMsg, setLastYearErrorMsg] = useState('');
+  const [nextYearErrorMsg, setNextYearErrorMsg] = useState('');
+  const [disableSave, setDisableSave] = useState(true)
 
   const theme = useTheme();
 
@@ -77,10 +72,14 @@ export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, s
       marginHorizontal: 10,
       fontSize: 20
     },
+    contractSelectText: {
+      fontSize: 14,
+    },
     buttonContainer: {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
+      margin: 10,
     },
     saveButtonText: {
       fontSize: 18,
@@ -104,10 +103,11 @@ export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, s
 
       const builtContracts = await Promise.all(foundContracts.map(async contract => {
         const resort = await runTransaction(db, `select * from resort where resort_id = ${contract.home_resort_id}`);
-        const stringFromContract = resort[0].name + ' - ' + contract.use_year + ' - ' + contract.points + 'pts'
+        let contractResortName = resort[0].name
+        const stringFromContract = contractResortName + ' - ' + contract.use_year?.substring(0, 3) + ' - ' + contract.points + ' pts'
         return { _id: contract.contract_id, value: stringFromContract }
       }));
-      setContract({ ...contract, list: [{_id: -1, value: "Save Without Contract"}, ...builtContracts] })
+      setContract({ ...contract, list: [{ _id: -1, value: "Save Without Contract" }, ...builtContracts] })
     }
   }
 
@@ -118,10 +118,21 @@ export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, s
   }, [db])
 
   const onDismissSaveTrip = () => {
+    setLastYearErrorMsg('')
+    setBorrowedFromLastYear(undefined)
+    setBorrowedFromNextYear(undefined)
+    setContract({
+      value: '',
+      selected_id: '',
+      list: [],
+      selectedList: [],
+      error: '',
+    })
     setOpenSaveTrip(false)
   }
 
   const handleSelectContract = async (value) => {
+    setDisableSave(value.selectedList.length === 0);
     setContract({
       ...contract,
       value: value.text,
@@ -131,7 +142,14 @@ export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, s
     });
   }
 
-  const handleUpdateBorrowFrom = (value, setState) => {
+  const handleUpdateBorrowFrom = (value, setState, setErrorMsg) => {
+    if (isNaN(value)) {
+      setErrorMsg('Enter a valid number')
+      setDisableSave(true)
+    } else {
+      setErrorMsg('')
+      setDisableSave(false)
+    }
     setState(value)
   }
 
@@ -151,7 +169,6 @@ export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, s
         checkOutDate: checkOutDate
       }
       const savedTrip = await createTrip(db, newTrip);
-      console.log(savedTrip)
       onDismissSaveTrip()
       return
     }
@@ -177,6 +194,10 @@ export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, s
       pointAllotmentForNextYear = (await runTransaction(db, `select * from point_allotment where contract_id = ${selectedContractId} and year = ${yearForPointAllotment + 1}`))[0]
     }
     if (pointAllotmentForUseYear.points_available < pointsOnCurrentPointAllotment) {
+      setContract({
+        ...contract,
+        error: 'Not enough points in the contract. You can save the trip without setting a Contract.',
+      })
       setErrorMsg('Not enough points in the contract. You can save the trip without setting a Contract.')
       return
     }
@@ -212,40 +233,46 @@ export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, s
 
   return (
     <Modal visible={openSaveTrip} onDismiss={onDismissSaveTrip} contentContainerStyle={styles.addContractContainer}>
-      <View style={styles.modalTitleRow}>
-        <Text style={styles.modalTitle}>Save Trip</Text>
-      </View>
-      {errorMsg !== '' ? <View style={styles.errorContainer}>
-        <Text style={styles.errorMessage}>{errorMsg}</Text>
-      </View> : ''}
-      <View style={styles.tripContainer}>
-        <Text style={styles.resortNameStyle}>{trip.resortName}</Text>
-        <Text style={styles.viewAndRoomStyle}>{trip.viewTypeName} - {trip.roomTypeName}</Text>
-        <Text style={styles.dateRangeStyle}>{formatDate(checkInDate)} - {formatDate(checkOutDate)}</Text>
-        <Text style={styles.pointsStyle}>{trip.points} points</Text>
-      </View>
-      <View style={styles.contractSelect}>
-        <PaperSelect
-          hideSearchBox={true}
-          theme={theme}
-          label="Contract"
-          value={contract.value}
-          onSelection={(value) => { handleSelectContract(value) }}
-          arrayList={[...contract.list]}
-          selectedArrayList={[...contract.selectedList]}
-          errorText={contract.error}
-          multiEnable={false}
-        />
-      </View>
-      <View style={styles.borrowFromInputContainer}>
-        <TextInput disabled={contract.selectedList.length === 0 || contract.selected_id === -1} mode='outlined' label='Amount Borrowed from Last Year' value={borrowedFromLastYear} onChangeText={text => handleUpdateBorrowFrom(text, setBorrowedFromLastYear)}></TextInput>
-      </View>
-      <View style={styles.borrowFromInputContainer}>
-        <TextInput disabled={contract.selected_id === undefined || contract.selected_id === -1} mode='outlined' label='Amount Borrowed from Next Year' value={borrowedFromNextYear} onChangeText={text => handleUpdateBorrowFrom(text, setBorrowedFromNextYear)}></TextInput>
-      </View>
-      <View style={styles.buttonContainer}>
-        <Button onPress={saveTrip} labelStyle={styles.saveButtonText} mode="contained">Save</Button>
-      </View>
+      <ScrollView>
+        <View style={styles.modalTitleRow}>
+          <Text style={styles.modalTitle}>Save Trip</Text>
+        </View>
+        <View style={styles.tripContainer}>
+          <Text style={styles.resortNameStyle}>{trip.resortName}</Text>
+          <Text style={styles.viewAndRoomStyle}>{trip.viewTypeName} - {trip.roomTypeName}</Text>
+          <Text style={styles.dateRangeStyle}>{formatDate(checkInDate)} - {formatDate(checkOutDate)}</Text>
+          <Text style={styles.pointsStyle}>{trip.points} points</Text>
+        </View>
+        <View style={styles.contractSelect}>
+          <PaperSelect
+            textInputStyle={styles.contractSelectText}
+            hideSearchBox={true}
+            theme={theme}
+            label="Contract"
+            value={contract.value}
+            onSelection={(value) => { handleSelectContract(value) }}
+            arrayList={[...contract.list]}
+            selectedArrayList={[...contract.selectedList]}
+            errorText={contract.error}
+            multiEnable={false}
+          />
+        </View>
+        <View style={styles.borrowFromInputContainer}>
+          <TextInput disabled={contract.selectedList.length === 0 || contract.selected_id === -1} mode='outlined' label='Amount Borrowed from Last Year' value={borrowedFromLastYear} onChangeText={text => handleUpdateBorrowFrom(text, setBorrowedFromLastYear, setLastYearErrorMsg)} error={lastYearErrorMsg.length > 0}></TextInput>
+          {lastYearErrorMsg.length > 0 ? <HelperText type="error" >
+            {lastYearErrorMsg}
+          </HelperText> : null}
+        </View>
+        <View style={styles.borrowFromInputContainer}>
+          <TextInput disabled={contract.selectedList.length === 0 || contract.selected_id === -1} mode='outlined' label='Amount Borrowed from Next Year' value={borrowedFromNextYear} onChangeText={text => handleUpdateBorrowFrom(text, setBorrowedFromNextYear, setNextYearErrorMsg)} error={nextYearErrorMsg.length > 0}></TextInput>
+          {nextYearErrorMsg.length > 0 ? <HelperText type="error" >
+            {nextYearErrorMsg}
+          </HelperText> : null}
+        </View>
+        <View style={styles.buttonContainer}>
+          <Button onPress={saveTrip} labelStyle={styles.saveButtonText} mode="contained" disabled={disableSave}>Save</Button>
+        </View>
+      </ScrollView>
     </Modal>
   )
 }

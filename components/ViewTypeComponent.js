@@ -62,7 +62,7 @@ export default function ViewTypeComponent({ viewType, setOpenSaveTrip, roomTypeN
       flexDirection: 'flex',
       justifyContent: 'right',
       alignContent: 'flex-end',
-      margin: -5
+      marginRight: -5
     },
     saveButton: {
       marginRight: 5,
