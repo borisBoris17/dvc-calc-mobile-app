@@ -12,6 +12,7 @@ import { BottomNavigation, MD3LightTheme as DefaultTheme, Provider } from 'react
 import CalculatorComponent from './components/CalculatorComponent';
 import { ContractsComponent } from './components/ContractsComponent';
 import { runTransaction } from './util';
+import { TripsComponent } from './components/TripsComponent';
 
 const Stack = createNativeStackNavigator();
 
@@ -20,6 +21,7 @@ export default function App() {
   const [index, setIndex] = useState(0);
   const [routes] = useState([
     { key: 'calculator', title: 'Caclulator', focusedIcon: 'calculator', unfocusedIcon: 'calculator' },
+    { key: 'trip', title: 'Trips', focusedIcon: 'calendar', unfocusedIcon: 'calendar' },
     { key: 'contract', title: 'Contracts', focusedIcon: 'file-document', unfocusedIcon: 'file-document' },
   ])
 
@@ -140,6 +142,8 @@ export default function App() {
         return <CalculatorComponent jumpTo={jumpTo} db={db} />;
       case 'contract':
         return <ContractsComponent db={db} index={index} />;
+      case 'trip':
+        return <TripsComponent db={db} index={index} />;
     }
   }
 

@@ -154,7 +154,6 @@ export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, s
   }
 
   const saveTrip = async () => {
-    setErrorMsg('')
     const selectedContractId = contract.selected_id;
     if (selectedContractId === -1) {
       const newTrip = {
@@ -198,19 +197,18 @@ export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, s
         ...contract,
         error: 'Not enough points in the contract. You can save the trip without setting a Contract.',
       })
-      setErrorMsg('Not enough points in the contract. You can save the trip without setting a Contract.')
       return
     }
     if (pointAllotmentForLastYear) {
       if (pointAllotmentForLastYear.points_available < borrowedFromLastYear) {
-        setErrorMsg(`Not enough points to borrow from ${yearForPointAllotment - 1}.`)
+        setLastYearErrorMsg(`Not enough points to borrow from ${yearForPointAllotment - 1}.`)
         return
       }
       await runTransaction(db, `update point_allotment set points_available = ${pointAllotmentForLastYear.points_available - borrowedFromLastYear} where point_allotment_id = ${pointAllotmentForLastYear.point_allotment_id}`)
     }
     if (pointAllotmentForNextYear) {
       if (pointAllotmentForNextYear.points_available < borrowedFromNextYear) {
-        setErrorMsg(`Not enough points to borrow from ${yearForPointAllotment + 1}.`)
+        setNextYearErrorMsg(`Not enough points to borrow from ${yearForPointAllotment + 1}.`)
         return
       }
       await runTransaction(db, `update point_allotment set points_available = ${pointAllotmentForNextYear.points_available - borrowedFromNextYear} where point_allotment_id = ${pointAllotmentForNextYear.point_allotment_id}`)
