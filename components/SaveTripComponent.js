@@ -175,8 +175,8 @@ export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, s
     const monthOfTripMonthIndex = checkInDateObj.getMonth();
     const yearOfTrip = checkInDateObj.getFullYear()
     const selectedContract = (await runTransaction(db, `select * from contract where contract_id = ${selectedContractId}`))[0];
-    const useYearOnContractMonthIndex = monthToNumberMap.get(selectedContract);
-    const yearForPointAllotment = yearOfTrip;
+    const useYearOnContractMonthIndex = monthToNumberMap.get(selectedContract.use_year);
+    let yearForPointAllotment = yearOfTrip;
     if (monthOfTripMonthIndex < useYearOnContractMonthIndex) {
       yearForPointAllotment -= 1;
     }

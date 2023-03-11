@@ -8,7 +8,7 @@ registerTranslation('en-GB', enGB)
 import * as SQLite from 'expo-sqlite';
 import * as FileSystem from "expo-file-system";
 import { Asset } from "expo-asset";
-import { BottomNavigation, MD3LightTheme as DefaultTheme, Provider } from 'react-native-paper';
+import { BottomNavigation, Provider } from 'react-native-paper';
 import CalculatorComponent from './components/CalculatorComponent';
 import { ContractsComponent } from './components/ContractsComponent';
 import { runTransaction } from './util';
@@ -17,7 +17,7 @@ import { TripsComponent } from './components/TripsComponent';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-  const [db, setDb] = useState(undefined);
+  const [db, setDb] = useState(SQLite.openDatabase('dvcCalc.db'));
   const [index, setIndex] = useState(0);
   const [routes] = useState([
     { key: 'calculator', title: 'Caclulator', focusedIcon: 'calculator', unfocusedIcon: 'calculator' },
@@ -33,24 +33,19 @@ export default function App() {
 
     const existingDB = SQLite.openDatabase(dbName)
 
-    const queryResults = await runTransaction(existingDB, 'select * from trip');
-    console.log('check existing db')
+    const queryResults = await runTransaction(db, 'select * from trip');
     if (queryResults === undefined) {
-      console.log('need to instantiate db')
 
       if (!(await FileSystem.getInfoAsync(localFolder)).exists) {
         await FileSystem.makeDirectoryAsync(localFolder)
       }
 
       let asset = Asset.fromModule(require('./assets/db/dvcCalc.db'))
-
       if (!asset.downloaded) {
         await asset.downloadAsync().then(value => {
           asset = value
         })
-
         let remoteURI = asset.localUri
-
         await FileSystem.copyAsync({
           from: remoteURI,
           to: localURI
@@ -60,9 +55,7 @@ export default function App() {
       } else {
         // for iOS  -Asset is downloaded on call Asset.fromModule(), just copy from cache to local file
         if (asset.localUri || asset.uri.startsWith("asset") || asset.uri.startsWith("file")) {
-
           let remoteURI = asset.localUri || asset.uri
-
           await FileSystem.copyAsync({
             from: remoteURI,
             to: localURI
@@ -71,7 +64,6 @@ export default function App() {
           })
         } else if (asset.uri.startsWith("http") || asset.uri.startsWith("https")) {
           let remoteURI = asset.uri
-
           await FileSystem.downloadAsync(remoteURI, localURI)
             .catch(error => {
               console.log("local downloadAsync - finished with error: " + error)

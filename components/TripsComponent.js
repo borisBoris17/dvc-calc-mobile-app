@@ -63,7 +63,7 @@ export function TripsComponent({ db, index }) {
           <Text style={{ fontSize: 45, fontWeight: 'bold', textAlign: 'center', color: '#00232c' }}>Trips</Text>
         </View>
         <ScrollView style={styles.scrollContainer}>
-          {trips?.map(trip => (<TripComponent trip={trip} />))}
+          {trips?.map(trip => (<TripComponent key={trip.trip_id} trip={trip} />))}
         </ScrollView>
       </View>
     </>
