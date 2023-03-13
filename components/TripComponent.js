@@ -1,8 +1,8 @@
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { Card, useTheme } from 'react-native-paper';
 import { formatDate } from '../util';
 
-export function TripComponent({ trip }) {
+export function TripComponent({ trip, handleDeleteTrip }) {
 
   const theme = useTheme();
 
@@ -31,6 +31,19 @@ export function TripComponent({ trip }) {
       marginHorizontal: 5,
       fontSize: 20
     },
+    removeButtonRow: {
+      display: 'flex',
+      flexDirection: 'flex',
+      justifyContent: 'right',
+      alignContent: 'flex-end'
+    },
+    removeButton: {
+      margin: 5,
+      marginLeft: 'auto'
+    },
+    removeButtonLabel: {
+      color: 'red'
+    }
   });
 
   return (
@@ -41,7 +54,13 @@ export function TripComponent({ trip }) {
         <Text style={styles.dateRangeStyle}>{formatDate(new Date(trip.checkInDate))} - {formatDate(new Date(trip.checkOutDate))}</Text>
         <Text style={styles.pointsStyle}>{trip.points} points</Text>
         <Text style={styles.pointsStyle}>Contract: {trip.contract}</Text>
+        <View style={styles.removeButtonRow}>
+          <TouchableOpacity style={styles.removeButton} onPress={() => handleDeleteTrip(trip)}>
+            <Text style={styles.removeButtonLabel}>Remove</Text>
+          </TouchableOpacity>
+        </View>
       </View>
+
     </Card>
   )
 }

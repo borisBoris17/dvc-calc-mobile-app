@@ -183,7 +183,7 @@ export const removeContract = async (db, contract) => {
     const deleteAllotmentQuery = `delete from point_allotment where point_allotment_id = ${allotment.point_allotment_id}`
     await runTransaction(db, deleteAllotmentQuery);
   }))
-  const deleteContractQuery = `delete from contract where contract_id = ${contract.contract_id}`
+  const deleteContractQuery = `delete from contract where contract_id = ${contract.contract_id};`
   await runTransaction(db, deleteContractQuery)
 }
 
@@ -195,4 +195,36 @@ export const createTrip = async (db, trip) => {
 
   const insertedTrip = await runTransaction(db, query);
   return insertedTrip[0];
+}
+
+export const removeTrip = async (db, trip) => {
+  console.log('trip', trip)
+  const dropTripQuery = `delete from trip where trip_id = ${trip.trip_id};`
+  const foundTrip = (await runTransaction(db, `select * from trip where trip_id = ${trip.trip_id}`))[0]
+  console.log('foundTrip', foundTrip)
+  if (trip.contract_id === null) {
+    await runTransaction(db, dropTripQuery);
+  } else {
+    const checkInDateObj = new Date(foundTrip.check_in_date);
+    const monthOfTripMonthIndex = checkInDateObj.getMonth();
+    const yearOfTrip = checkInDateObj.getFullYear()
+    const contractOnTrip = (await runTransaction(db, `select * from contract where contract_id = ${foundTrip.contract_id}`))[0];
+    const useYearOnContractMonthIndex = monthToNumberMap.get(contractOnTrip.use_year);
+    let yearForPointAllotment = yearOfTrip;
+    if (monthOfTripMonthIndex < useYearOnContractMonthIndex) {
+      yearForPointAllotment -= 1;
+    }
+    const mainAllotmentForTrip = (await runTransaction(db, `select * from point_allotment where contract_id = ${foundTrip.contract_id} and year = ${yearForPointAllotment}`))[0]
+    const allotmentForLastYear = (await runTransaction(db, `select * from point_allotment where contract_id = ${foundTrip.contract_id} and year = ${yearForPointAllotment - 1}`))[0]
+    const allotmentForNextYear = (await runTransaction(db, `select * from point_allotment where contract_id = ${foundTrip.contract_id} and year = ${yearForPointAllotment + 1}`))[0]
+
+    const newPointsForMain = mainAllotmentForTrip.points_available + (foundTrip.points - foundTrip.borrowed_from_prev - foundTrip.borrowed_from_next)
+    const newPointsForLast = allotmentForLastYear.points_available + foundTrip.borrowed_from_prev
+    const newPointsForNext = allotmentForNextYear.points_available + foundTrip.borrowed_from_next
+
+    await runTransaction(db, `update point_allotment set points_available = ${newPointsForMain} where point_allotment_id = ${mainAllotmentForTrip.point_allotment_id}`)
+    await runTransaction(db, `update point_allotment set points_available = ${newPointsForLast} where point_allotment_id = ${allotmentForLastYear.point_allotment_id}`)
+    await runTransaction(db, `update point_allotment set points_available = ${newPointsForNext} where point_allotment_id = ${allotmentForNextYear.point_allotment_id}`)
+    await runTransaction(db, dropTripQuery);
+  }
 }

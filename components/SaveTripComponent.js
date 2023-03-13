@@ -119,12 +119,13 @@ export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, s
 
   const onDismissSaveTrip = () => {
     setLastYearErrorMsg('')
+    setNextYearErrorMsg('')
     setBorrowedFromLastYear(undefined)
     setBorrowedFromNextYear(undefined)
     setContract({
+      ...contract, 
       value: '',
       selected_id: '',
-      list: [],
       selectedList: [],
       error: '',
     })
