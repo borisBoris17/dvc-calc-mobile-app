@@ -179,6 +179,7 @@ export const createPointAllotment = async (db, pointsAllotment) => {
 }
 
 export const removeContract = async (db, contract) => {
+  await runTransaction(db, `update trip set contract_id = null, borrowed_from_prev = 0, borrowed_from_next = 0 where contract_id = ${contract.contract_id}`)
   await Promise.all(contract.allotments.map(async allotment => {
     const deleteAllotmentQuery = `delete from point_allotment where point_allotment_id = ${allotment.point_allotment_id}`
     await runTransaction(db, deleteAllotmentQuery);
@@ -198,10 +199,8 @@ export const createTrip = async (db, trip) => {
 }
 
 export const removeTrip = async (db, trip) => {
-  console.log('trip', trip)
   const dropTripQuery = `delete from trip where trip_id = ${trip.trip_id};`
   const foundTrip = (await runTransaction(db, `select * from trip where trip_id = ${trip.trip_id}`))[0]
-  console.log('foundTrip', foundTrip)
   if (trip.contract_id === null) {
     await runTransaction(db, dropTripQuery);
   } else {
