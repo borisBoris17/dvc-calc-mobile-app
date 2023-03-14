@@ -190,9 +190,9 @@ export const removeContract = async (db, contract) => {
 
 export const createTrip = async (db, trip) => {
   const { contract_id, points, pointsBorrowedFromLastYear, pointsBorrowedFromNextYear, resortName, viewTypeName, roomTypeName, checkInDate, checkOutDate } = trip
-
+  
   const query = `INSERT INTO TRIP (contract_id, resort_name, room_type_name, view_type_name, check_in_date, check_out_date, points, borrowed_from_prev, borrowed_from_next)
-                  VALUES (${contract_id}, "${resortName}", "${roomTypeName}", "${viewTypeName}", "${formatDateForQuery(checkInDate)}", "${formatDateForQuery(checkOutDate)}", ${points}, ${pointsBorrowedFromLastYear}, ${pointsBorrowedFromNextYear}) RETURNING *;`
+                  VALUES (${contract_id}, "${resortName}", "${roomTypeName}", "${viewTypeName}", "${checkInDate.toISOString()}", "${checkOutDate.toISOString()}", ${points}, ${pointsBorrowedFromLastYear}, ${pointsBorrowedFromNextYear}) RETURNING *;`
 
   const insertedTrip = await runTransaction(db, query);
   return insertedTrip[0];

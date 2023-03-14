@@ -81,7 +81,7 @@ export default function ResortModalComponent({ openResorts, onDismissResorts, re
                 resorts?.filter(resort => resort.selected).length === resorts?.length ? 'checked' : 'unchecked'}
               onPress={() => handleSelectAll(resorts?.filter(resort => resort.selected).length === resorts?.length)}
             />
-            <Text style={styles.resortLabel}>Select All</Text>
+            <Text style={styles.resortLabel}>{resorts?.filter(resort => resort.selected).length === resorts?.length ? 'Deselect All' : 'Select All'}</Text>
           </View>
         </TouchableWithoutFeedback>
         {resorts?.map(resort => (
