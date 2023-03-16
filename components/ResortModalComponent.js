@@ -74,14 +74,14 @@ export default function ResortModalComponent({ openResorts, onDismissResorts, re
       </View>
       <ScrollView>
         <TouchableWithoutFeedback
-          onPress={() => handleSelectAll(resorts?.filter(resort => resort.selected).length === resorts.length)}>
+          onPress={() => handleSelectAll(resorts?.filter(resort => resort.selected).length === resorts?.length)}>
           <View style={styles.resortRow}>
             <Checkbox
               status={
-                resorts?.filter(resort => resort.selected).length === resorts.length ? 'checked' : 'unchecked'}
-              onPress={() => handleSelectAll(resorts?.filter(resort => resort.selected).length === resorts.length)}
+                resorts?.filter(resort => resort.selected).length === resorts?.length ? 'checked' : 'unchecked'}
+              onPress={() => handleSelectAll(resorts?.filter(resort => resort.selected).length === resorts?.length)}
             />
-            <Text style={styles.resortLabel}>Select All</Text>
+            <Text style={styles.resortLabel}>{resorts?.filter(resort => resort.selected).length === resorts?.length ? 'Deselect All' : 'Select All'}</Text>
           </View>
         </TouchableWithoutFeedback>
         {resorts?.map(resort => (

@@ -1,9 +1,9 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useState } from 'react';
-import { Card, useTheme } from 'react-native-paper';
+import { Card, useTheme, Button } from 'react-native-paper';
 
 
-export default function ViewTypeComponent({ viewType }) {
+export default function ViewTypeComponent({ viewType, setOpenSaveTrip, roomTypeName, resortName, setTrip }) {
   const [showDetails, setShowDetails] = useState(false);
 
   const theme = useTheme();
@@ -39,6 +39,9 @@ export default function ViewTypeComponent({ viewType }) {
       display: 'flex',
       flexDirection: 'row',
     },
+    detailsContainer: {
+      marginBottom: 5,
+    },
     detailsButton: {
       fontSize: 14,
       textDecorationLine: 'underline',
@@ -50,8 +53,33 @@ export default function ViewTypeComponent({ viewType }) {
     },
     nightlyPoints: {
       flex: 1,
+    },
+    saveTripLabel: {
+      fontSize: 18,
+    },
+    saveButtonContainer: {
+      display: 'flex',
+      flexDirection: 'flex',
+      justifyContent: 'right',
+      alignContent: 'flex-end',
+      marginRight: -5
+    },
+    saveButton: {
+      marginRight: 5,
+      marginLeft: 'auto'
     }
   });
+
+  const handleSave = () => {
+    const trip = {
+      resortName: resortName,
+      roomTypeName: roomTypeName,
+      viewTypeName: viewType.view_type_name,
+      points: viewType.totalPoints,
+    }
+    setTrip(trip)
+    setOpenSaveTrip(true)
+  }
 
   return (
     <Card style={styles.viewTypeContainer}>
@@ -62,18 +90,23 @@ export default function ViewTypeComponent({ viewType }) {
           <Text style={styles.pointsLabel}>points</Text>
         </View>
       </View>
-      {showDetails ?
-        <TouchableOpacity onPress={() => setShowDetails(false)}><Text style={styles.detailsButton}>Close Details</Text></TouchableOpacity>
-        : <TouchableOpacity onPress={() => setShowDetails(true)}><Text style={styles.detailsButton}>Details</Text></TouchableOpacity>
-      }
-      {showDetails ?
-        viewType.dates.map((detail, index) => (
-          <View key={index} style={styles.detail}>
-            <Text style={styles.nightlyPoints}>{detail.date}</Text>
-            <Text >{detail.points} pts</Text>
-          </View>
-        ))
-        : ''}
+      <View style={styles.detailsContainer}>
+        {showDetails ?
+          <TouchableOpacity onPress={() => setShowDetails(false)}><Text style={styles.detailsButton}>Close Details</Text></TouchableOpacity>
+          : <TouchableOpacity onPress={() => setShowDetails(true)}><Text style={styles.detailsButton}>Details</Text></TouchableOpacity>
+        }
+        {showDetails ?
+          viewType.dates.map((detail, index) => (
+            <View key={index} style={styles.detail}>
+              <Text style={styles.nightlyPoints}>{detail.date}</Text>
+              <Text >{detail.points} pts</Text>
+            </View>
+          ))
+          : ''}
+      </View>
+      <View style={styles.saveButtonContainer}>
+        <Button style={styles.saveButton} onPress={() => handleSave()} labelStyle={styles.saveTripLabel}>Save</Button>
+      </View>
     </Card>
   )
 }

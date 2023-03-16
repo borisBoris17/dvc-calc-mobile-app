@@ -25,7 +25,7 @@ export default function CalculatorComponent({ db }) {
   const fetchResorts = async () => {
     if (db !== undefined) {
       const foundResorts = await runTransaction(db, 'select * from resort order by resort_id ASC;');
-      const builtResorts = foundResorts.map(resort => {
+      const builtResorts = foundResorts?.map(resort => {
         return { selected: true, name: resort.name }
       });
       setResorts(builtResorts)
@@ -52,7 +52,7 @@ export default function CalculatorComponent({ db }) {
         <Stack.Screen
           options={{ headerShown: false }}
           name="Results">
-          {(props) => <ResultsComponent {...props} resorts={resorts} setResorts={setResorts} roomTypes={roomTypes} setRoomTypes={setRoomTypes} />}
+          {(props) => <ResultsComponent {...props} db={db} resorts={resorts} setResorts={setResorts} roomTypes={roomTypes} setRoomTypes={setRoomTypes} />}
         </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>

@@ -5,7 +5,7 @@ import { removeContract, runTransaction } from '../util';
 import UseYearComponent from './UseYearComponent';
 import AddContractComponent from './AddContractComponent';
 
-export function ContractsComponent({ db }) {
+export function ContractsComponent({ db, index }) {
   const [contracts, setContracts] = useState({
     February: [],
     March: [],
@@ -57,12 +57,10 @@ export function ContractsComponent({ db }) {
       let builtContracts = contracts;
       await Promise.all(foundContracts.map(async (contract) => {
         const homeResortName = await runTransaction(db, `select name from resort where resort_id = ${contract.home_resort_id}`)
-        if (builtContracts[contract.use_year].filter(contactInContracts => contactInContracts.contract_id === contract.contract_id).length === 0) {
-          const allotmentsForContract = await runTransaction(db, `select * from point_allotment where contract_id = ${contract.contract_id}`)
-          const foundContract = { contract_id: contract.contract_id, homeResort: homeResortName[0].name, points: contract.points, use_year: contract.use_year, allotments: allotmentsForContract };
-          const currentContractsForUseYear = [...builtContracts[contract.use_year], foundContract];
-          builtContracts = { ...builtContracts, [contract.use_year]: currentContractsForUseYear };
-        }
+        const allotmentsForContract = await runTransaction(db, `select * from point_allotment where contract_id = ${contract.contract_id}`)
+        const foundContract = { contract_id: contract.contract_id, homeResort: homeResortName[0].name, points: contract.points, use_year: contract.use_year, allotments: allotmentsForContract };
+        const currentContractsForUseYear = [...builtContracts[contract.use_year].filter(c => c.contract_id !== contract.contract_id), foundContract];
+        builtContracts = { ...builtContracts, [contract.use_year]: currentContractsForUseYear };
       }));
       setContracts(builtContracts)
     }
@@ -72,14 +70,14 @@ export function ContractsComponent({ db }) {
     if (db !== undefined) {
       fetchContracts();
     }
-  }, [db])
+  }, [db, index])
 
   const handleDeleteContract = (contract_id, use_year) => {
     const contractsForUseYear = [...contracts[use_year]];
     const contractToRemove = contractsForUseYear.filter(cont => cont.contract_id === contract_id)[0];
     removeContract(db, contractToRemove);
     const newContractListForUseYear = contractsForUseYear.filter(cont => cont.contract_id !== contract_id)
-    setContracts({...contracts, [use_year]: newContractListForUseYear})
+    setContracts({ ...contracts, [use_year]: newContractListForUseYear })
   }
 
   return (
@@ -90,12 +88,12 @@ export function ContractsComponent({ db }) {
           <Text style={{ fontSize: 45, fontWeight: 'bold', textAlign: 'center', color: '#00232c' }}>Contracts</Text>
         </View>
         <ScrollView style={styles.scrollContainer}>
-          {contracts.February.length > 0 ? <UseYearComponent contractsForUseYear={contracts.February} useYear={'February'} handleDeleteContract={handleDeleteContract}/> : ''}  
-          {contracts.March.length > 0 ? <UseYearComponent contractsForUseYear={contracts.March} useYear={'March'} handleDeleteContract={handleDeleteContract} /> : ''}        
+          {contracts.February.length > 0 ? <UseYearComponent contractsForUseYear={contracts.February} useYear={'February'} handleDeleteContract={handleDeleteContract} /> : ''}
+          {contracts.March.length > 0 ? <UseYearComponent contractsForUseYear={contracts.March} useYear={'March'} handleDeleteContract={handleDeleteContract} /> : ''}
           {contracts.April.length > 0 ? <UseYearComponent contractsForUseYear={contracts.April} useYear={'April'} handleDeleteContract={handleDeleteContract} /> : ''}
           {contracts.June.length > 0 ? <UseYearComponent contractsForUseYear={contracts.June} useYear={'June'} handleDeleteContract={handleDeleteContract} /> : ''}
-          {contracts.August.length > 0 ? <UseYearComponent contractsForUseYear={contracts.August} useYear={'August'} handleDeleteContract={handleDeleteContract} /> : ''}  
-          {contracts.September.length > 0 ? <UseYearComponent contractsForUseYear={contracts.September} useYear={'September'} handleDeleteContract={handleDeleteContract} /> : ''}        
+          {contracts.August.length > 0 ? <UseYearComponent contractsForUseYear={contracts.August} useYear={'August'} handleDeleteContract={handleDeleteContract} /> : ''}
+          {contracts.September.length > 0 ? <UseYearComponent contractsForUseYear={contracts.September} useYear={'September'} handleDeleteContract={handleDeleteContract} /> : ''}
           {contracts.October.length > 0 ? <UseYearComponent contractsForUseYear={contracts.October} useYear={'October'} handleDeleteContract={handleDeleteContract} /> : ''}
           {contracts.December.length > 0 ? <UseYearComponent contractsForUseYear={contracts.December} useYear={'December'} handleDeleteContract={handleDeleteContract} /> : ''}
           <View style={styles.buttonContainer}>
