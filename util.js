@@ -243,3 +243,12 @@ export const removeTrip = async (db, trip) => {
     await runTransaction(db, dropTripQuery);
   }
 }
+
+export const updatePointAllotments = async(db, allotmentsToUpdate) => {
+  if (allotmentsToUpdate.length === 0) {
+    return
+  }
+  await Promise.all(allotmentsToUpdate.map(async (allotment) => {
+    await runTransaction(db, `update point_allotment set points_available = ${allotment.points_available} where point_allotment_id = ${allotment.point_allotment_id}`)
+  }))
+}

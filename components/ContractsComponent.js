@@ -88,14 +88,14 @@ export function ContractsComponent({ db, index }) {
           <Text style={{ fontSize: 45, fontWeight: 'bold', textAlign: 'center', color: '#00232c' }}>Contracts</Text>
         </View>
         <ScrollView style={styles.scrollContainer}>
-          {contracts.February.length > 0 ? <UseYearComponent contractsForUseYear={contracts.February} useYear={'February'} handleDeleteContract={handleDeleteContract} /> : ''}
-          {contracts.March.length > 0 ? <UseYearComponent contractsForUseYear={contracts.March} useYear={'March'} handleDeleteContract={handleDeleteContract} /> : ''}
-          {contracts.April.length > 0 ? <UseYearComponent contractsForUseYear={contracts.April} useYear={'April'} handleDeleteContract={handleDeleteContract} /> : ''}
-          {contracts.June.length > 0 ? <UseYearComponent contractsForUseYear={contracts.June} useYear={'June'} handleDeleteContract={handleDeleteContract} /> : ''}
-          {contracts.August.length > 0 ? <UseYearComponent contractsForUseYear={contracts.August} useYear={'August'} handleDeleteContract={handleDeleteContract} /> : ''}
-          {contracts.September.length > 0 ? <UseYearComponent contractsForUseYear={contracts.September} useYear={'September'} handleDeleteContract={handleDeleteContract} /> : ''}
-          {contracts.October.length > 0 ? <UseYearComponent contractsForUseYear={contracts.October} useYear={'October'} handleDeleteContract={handleDeleteContract} /> : ''}
-          {contracts.December.length > 0 ? <UseYearComponent contractsForUseYear={contracts.December} useYear={'December'} handleDeleteContract={handleDeleteContract} /> : ''}
+          {contracts.February.length > 0 ? <UseYearComponent db={db} fetchContracts={fetchContracts} contractsForUseYear={contracts.February} useYear={'February'} handleDeleteContract={handleDeleteContract} /> : ''}
+          {contracts.March.length > 0 ? <UseYearComponent db={db} fetchContracts={fetchContracts} contractsForUseYear={contracts.March} useYear={'March'} handleDeleteContract={handleDeleteContract} /> : ''}
+          {contracts.April.length > 0 ? <UseYearComponent db={db} fetchContracts={fetchContracts} contractsForUseYear={contracts.April} useYear={'April'} handleDeleteContract={handleDeleteContract} /> : ''}
+          {contracts.June.length > 0 ? <UseYearComponent db={db} fetchContracts={fetchContracts} contractsForUseYear={contracts.June} useYear={'June'} handleDeleteContract={handleDeleteContract} /> : ''}
+          {contracts.August.length > 0 ? <UseYearComponent db={db} fetchContracts={fetchContracts} contractsForUseYear={contracts.August} useYear={'August'} handleDeleteContract={handleDeleteContract} /> : ''}
+          {contracts.September.length > 0 ? <UseYearComponent db={db} fetchContracts={fetchContracts} contractsForUseYear={contracts.September} useYear={'September'} handleDeleteContract={handleDeleteContract} /> : ''}
+          {contracts.October.length > 0 ? <UseYearComponent db={db} fetchContracts={fetchContracts} contractsForUseYear={contracts.October} useYear={'October'} handleDeleteContract={handleDeleteContract} /> : ''}
+          {contracts.December.length > 0 ? <UseYearComponent db={db} fetchContracts={fetchContracts} contractsForUseYear={contracts.December} useYear={'December'} handleDeleteContract={handleDeleteContract} /> : ''}
           <View style={styles.buttonContainer}>
             <Button style={styles.addButton} labelStyle={styles.addButtonText} onPress={() => setOpenAddContract(true)} mode="contained">Add New Contract</Button>
           </View>
