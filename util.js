@@ -1,3 +1,5 @@
+import Toast from 'react-native-root-toast';
+
 export function formatDateForQuery(date) {
   var d = new Date(date),
     month = '' + (d.getMonth() + 1),
@@ -14,6 +16,20 @@ export function formatDateForQuery(date) {
 
 export function formatDate(date) {
   return date.toLocaleDateString('en-us', { year: "numeric", month: "short", day: "numeric" })
+}
+
+export const displayToastMessage = (msg) => {
+  Toast.show(msg, {
+    duration: Toast.length.LONG,
+    position: Toast.positions.BOTTOM,
+    shadow: true,
+    animation: true,
+    hideOnPress: true,
+    delay: 0,
+    containerStyle: {
+      marginBottom: 80
+    }
+  });
 }
 
 export const monthToNumberMap = new Map();

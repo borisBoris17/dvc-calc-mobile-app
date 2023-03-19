@@ -140,6 +140,8 @@ export default function ResultsComponent({ route, navigation, resorts, setResort
         {resorts?.filter(resort => resort.name === 'Vero Beach')[0].selected ? printResort('Vero Beach', results.resorts) : ''}
         {resorts?.filter(resort => resort.name === 'Hilton Head Island')[0].selected ? <View><Text style={styles.resortHeader}>Hilton Head Island</Text></View> : ''}
         {resorts?.filter(resort => resort.name === 'Hilton Head Island')[0].selected ? printResort('Hilton Head Island', results.resorts) : ''}
+        {resorts?.filter(resort => resort.name === 'Grand Californian')[0].selected ? <View><Text style={styles.resortHeader}>Grand Californian</Text></View> : ''}
+        {resorts?.filter(resort => resort.name === 'Grand Californian')[0].selected ? printResort('Grand Californian', results.resorts) : ''}
       </ScrollView>
       <ResortModalComponent openResorts={openResortFilter} onDismissResorts={onDismissResorts} resorts={resorts} setResorts={setResorts} />
       <RoomTypeModalComponent openRoomTypes={openRoomTypeFilter} onDismissRoomTypes={onDismissRoomTypes} roomTypes={roomTypes} setRoomTypes={setRoomTypes} />

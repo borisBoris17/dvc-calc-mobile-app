@@ -13,6 +13,7 @@ import CalculatorComponent from './components/CalculatorComponent';
 import { ContractsComponent } from './components/ContractsComponent';
 import { runTransaction } from './util';
 import { TripsComponent } from './components/TripsComponent';
+import { RootSiblingParent } from 'react-native-root-siblings';
 
 const Stack = createNativeStackNavigator();
 
@@ -141,6 +142,7 @@ export default function App() {
 
   return (
     <Provider theme={theme}>
+      <RootSiblingParent>
       {db ? <BottomNavigation
         navigationState={{ index, routes }}
         onIndexChange={setIndex}
@@ -151,6 +153,7 @@ export default function App() {
           justifyContent: 'center',
         }}
       /> : ''}
+      </RootSiblingParent>
     </Provider>
   );
 }

@@ -1,10 +1,21 @@
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native';
 import { Card, useTheme } from 'react-native-paper';
 import { formatDate } from '../util';
 
 export function TripComponent({ trip, handleDeleteTrip }) {
 
   const theme = useTheme();
+
+  const handleRemoveTrip = () => {
+    Alert.alert('Remove Trip', 'Proceed with deleting Trip?', [
+      {
+        text: 'Cancel',
+        onPress: () => {},
+        style: 'cancel',
+      },
+      {text: 'OK', onPress: () => handleDeleteTrip(trip)},
+    ]);
+  }
 
   const styles = StyleSheet.create({
     container: {
@@ -55,7 +66,7 @@ export function TripComponent({ trip, handleDeleteTrip }) {
         <Text style={styles.pointsStyle}>{trip.points} points</Text>
         <Text style={styles.pointsStyle}>Contract: {trip.contract}</Text>
         <View style={styles.removeButtonRow}>
-          <TouchableOpacity style={styles.removeButton} onPress={() => handleDeleteTrip(trip)}>
+          <TouchableOpacity style={styles.removeButton} onPress={() => handleRemoveTrip()}>
             <Text style={styles.removeButtonLabel}>Remove</Text>
           </TouchableOpacity>
         </View>

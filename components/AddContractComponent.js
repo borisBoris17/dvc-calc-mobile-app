@@ -2,7 +2,7 @@ import { StyleSheet, View, Text } from 'react-native';
 import { Button, Modal, TextInput, useTheme } from 'react-native-paper';
 import { useState, useEffect } from 'react';
 import { PaperSelect } from 'react-native-paper-select';
-import { createContract, expirationDateMap, runTransaction } from '../util';
+import { createContract, displayToastMessage, expirationDateMap, runTransaction } from '../util';
 
 
 export default function AddContractComponent({ db, contracts, openAddContract, setContracts, setOpenAddContract }) {
@@ -115,6 +115,7 @@ export default function AddContractComponent({ db, contracts, openAddContract, s
       const currentContractsForUseYear = [...contracts[createdContract.use_year], { contract_id: createdContract.contract_id, homeResort: homeResort.value, points: createdContract.points, use_year: createdContract.use_year, allotments: createdContract.allotments }];
       const newContracts = { ...contracts, [createdContract.use_year]: currentContractsForUseYear };
       setContracts(newContracts)
+      displayToastMessage('Contract Saved Successfully')
     }
     onDismissAddContracts();
   }

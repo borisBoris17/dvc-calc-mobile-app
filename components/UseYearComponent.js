@@ -1,6 +1,6 @@
 import Constants from 'expo-constants';
 import React, { useEffect } from 'react';
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Card, IconButton, Text, useTheme } from "react-native-paper";
 import { monthToNumberMap } from '../util';
 
@@ -97,6 +97,17 @@ export default function UseYearComponent({ contractsForUseYear, useYear, handleD
       )))
   }
 
+  const handleRemoveContract = (contractId, useYear) => {
+    Alert.alert('Remove Contract', 'Proceed with deleting Contract?', [
+      {
+        text: 'Cancel',
+        onPress: () => {},
+        style: 'cancel',
+      },
+      {text: 'OK', onPress: () => handleDeleteContract(contractId, useYear)},
+    ]);
+  }
+
   return (
     <>
       <Card style={styles.useYearContainer} >
@@ -111,7 +122,7 @@ export default function UseYearComponent({ contractsForUseYear, useYear, handleD
               {buildAvailablePointsBlock(contract)}
             </View>
             <View style={styles.removeButtonRow}>
-              <TouchableOpacity style={styles.removeButton} onPress={() => handleDeleteContract(contract.contract_id, contract.use_year)}>
+              <TouchableOpacity style={styles.removeButton} onPress={() => handleRemoveContract(contract.contract_id, contract.use_year)}>
                 <Text style={styles.removeButtonLabel}>Remove</Text>
               </TouchableOpacity>
             </View>
