@@ -2,7 +2,7 @@ import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { Button, HelperText, Modal, TextInput, useTheme } from 'react-native-paper';
 import { useState, useEffect } from 'react';
 import { PaperSelect } from 'react-native-paper-select';
-import { createTrip, formatDate, monthToNumberMap, runTransaction } from '../util';
+import { createTrip, formatDate, monthToNumberMap, runTransaction, displayToastMessage } from '../util';
 
 
 export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, setTrip, trip, checkInDate, checkOutDate }) {
@@ -123,7 +123,7 @@ export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, s
     setBorrowedFromLastYear(undefined)
     setBorrowedFromNextYear(undefined)
     setContract({
-      ...contract, 
+      ...contract,
       value: '',
       selected_id: '',
       selectedList: [],
@@ -169,6 +169,7 @@ export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, s
         checkOutDate: checkOutDate
       }
       const savedTrip = await createTrip(db, newTrip);
+      displayToastMessage('Trip Saved Successfully')
       onDismissSaveTrip()
       return
     }
@@ -227,6 +228,7 @@ export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, s
       checkOutDate: checkOutDate
     }
     const savedTrip = await createTrip(db, newTrip);
+    displayToastMessage('Trip Saved Successfully')
     onDismissSaveTrip()
   }
 
