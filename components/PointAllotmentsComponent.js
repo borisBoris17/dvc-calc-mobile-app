@@ -71,7 +71,7 @@ export default function PointAllotmentsComponent({ db, contract, handleRemoveCon
 
   const handleAllotmentPointChange = (text, allotment) => {
     if (isNaN(text)) {
-      setErrorMsg('Enter a valid number');
+      setErrorMsg('Enter a Valid Number');
     }
     const newAllotmentsToUpdate = allotmentsToUpdate.map(altmnt => {
       if (altmnt.point_allotment_id === allotment.point_allotment_id) {
