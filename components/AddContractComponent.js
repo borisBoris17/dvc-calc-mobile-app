@@ -1,5 +1,5 @@
 import { StyleSheet, View, Text } from 'react-native';
-import { Button, Modal, TextInput, useTheme } from 'react-native-paper';
+import { Button, HelperText, Modal, TextInput, useTheme } from 'react-native-paper';
 import { useState, useEffect } from 'react';
 import { PaperSelect } from 'react-native-paper-select';
 import { createContract, displayToastMessage, expirationDateMap, runTransaction } from '../util';
@@ -29,6 +29,7 @@ export default function AddContractComponent({ db, contracts, openAddContract, s
     selectedList: [],
     error: '',
   });
+  const [errorMsg, setErrorMsg] = useState('')
 
   const theme = useTheme();
 
@@ -125,9 +126,15 @@ export default function AddContractComponent({ db, contracts, openAddContract, s
     setUseYear({ ...useYear, value: '', selectedList: [] })
     setHomeResort({ ...homeResort, value: '', selectedList: [] })
     setOpenAddContract(false)
+    setErrorMsg('')
   }
 
   const handlePointsChange = (text) => {
+    if (isNaN(text)) {
+      setErrorMsg('Enter a Valid Number')
+    } else {
+      setErrorMsg('')
+    }
     setContractPoints(text)
   }
 
@@ -159,7 +166,10 @@ export default function AddContractComponent({ db, contracts, openAddContract, s
           />
         </View>
         <View style={styles.pointsInput}>
-          <TextInput mode='outlined' label='Points' value={contractPoints} onChangeText={text => handlePointsChange(text)}></TextInput>
+          <TextInput mode='outlined' label='Points' value={contractPoints} onChangeText={text => handlePointsChange(text)} error={errorMsg.length > 0}></TextInput>
+          {errorMsg.length > 0 ? <HelperText type="error" >
+            {errorMsg}
+          </HelperText> : null}
         </View>
         <View style={styles.useYearSelect}>
           <PaperSelect

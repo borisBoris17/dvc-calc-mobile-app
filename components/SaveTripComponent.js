@@ -145,7 +145,7 @@ export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, s
 
   const handleUpdateBorrowFrom = (value, setState, setErrorMsg) => {
     if (isNaN(value)) {
-      setErrorMsg('Enter a valid number')
+      setErrorMsg('Enter a Valid Number')
       setDisableSave(true)
     } else {
       setErrorMsg('')
