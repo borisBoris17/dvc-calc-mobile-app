@@ -1,5 +1,6 @@
 import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native';
 import { Card, useTheme } from 'react-native-paper';
+import { tr } from 'react-native-paper-dates';
 import { formatDate } from '../util';
 
 export function TripComponent({ trip, handleDeleteTrip }) {
@@ -10,12 +11,23 @@ export function TripComponent({ trip, handleDeleteTrip }) {
     Alert.alert('Remove Trip', 'Proceed with deleting Trip?', [
       {
         text: 'Cancel',
-        onPress: () => {},
+        onPress: () => { },
         style: 'cancel',
       },
-      {text: 'OK', onPress: () => handleDeleteTrip(trip)},
+      { text: 'OK', onPress: () => handleDeleteTrip(trip) },
     ]);
   }
+
+  const calculateDaysUntilTrip = (checkInDate) => {
+    const today = new Date();
+    const checkInDateObj = new Date(checkInDate)
+    const timeBetween = checkInDateObj.getTime() - today.getTime()
+    const milliSecInDay = 1000 * 60 * 60 * 24
+    const daysBetween = timeBetween / milliSecInDay
+    return Math.ceil(daysBetween)
+  }
+
+  const daysUntilTrip = calculateDaysUntilTrip(trip.checkInDate)
 
   const styles = StyleSheet.create({
     container: {
@@ -26,9 +38,21 @@ export function TripComponent({ trip, handleDeleteTrip }) {
     tripContainer: {
       display: 'flex',
     },
+    titleRow: {
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
     resortNameStyle: {
       margin: 5,
-      fontSize: 34
+      fontSize: 34,
+      flex: 1,
+      color: theme.colors.primary,
+      fontWeight: 'bold',
+    },
+    daysAwayStyle: {
+      fontSize: 24,
+      color: theme.colors.primary,
     },
     viewAndRoomStyle: {
       marginHorizontal: 5,
@@ -60,7 +84,10 @@ export function TripComponent({ trip, handleDeleteTrip }) {
   return (
     <Card style={styles.container}>
       <View style={styles.tripContainer}>
-        <Text style={styles.resortNameStyle}>{trip.resortName}</Text>
+        <View style={styles.titleRow}>
+          <Text style={styles.resortNameStyle}>{trip.resortName}</Text>
+          {daysUntilTrip > 0 ? <Text style={styles.daysAwayStyle}>{daysUntilTrip} Days Away</Text> : daysUntilTrip === 0 ? <Text style={styles.daysAwayStyle}>It's Disney Day!</Text> : ''}
+        </View>
         <Text style={styles.viewAndRoomStyle}>{trip.viewTypeName} - {trip.roomTypeName}</Text>
         <Text style={styles.dateRangeStyle}>{formatDate(new Date(trip.checkInDate))} - {formatDate(new Date(trip.checkOutDate))}</Text>
         <Text style={styles.pointsStyle}>{trip.points} points</Text>

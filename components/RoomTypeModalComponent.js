@@ -81,7 +81,7 @@ export default function RoomTypeModalComponent({ openRoomTypes, onDismissRoomTyp
                 roomTypes?.filter(roomType => roomType.selected).length === roomTypes.length ? 'checked' : 'unchecked'}
               onPress={() => handleSelectAll(roomTypes?.filter(roomType => roomType.selected).length === roomTypes.length)}
             />
-            <Text style={styles.roomTypeLabel}>Select All</Text>
+            <Text style={styles.roomTypeLabel}>{roomTypes?.filter(roomType => roomType.selected).length === roomTypes?.length ? 'Deselect All' : 'Select All'}</Text>
           </View>
         </TouchableWithoutFeedback>
         {roomTypes?.map(roomType => (
