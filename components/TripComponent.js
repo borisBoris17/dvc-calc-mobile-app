@@ -84,7 +84,7 @@ export function TripComponent({ trip, handleDeleteTrip }) {
       <View style={styles.tripContainer}>
         <View style={styles.titleRow}>
           <Text style={styles.resortNameStyle}>{trip.resortName}</Text>
-          {daysUntilTrip > 0 ? <Text style={styles.daysAwayStyle}>{daysUntilTrip} Days Away</Text> : daysUntilTrip === 0 ? <Text style={styles.daysAwayStyle}>It's Disney Day!</Text> : ''}
+          {daysUntilTrip > 0 ? <Text style={styles.daysAwayStyle}>{daysUntilTrip} Days</Text> : daysUntilTrip === 0 ? <Text style={styles.daysAwayStyle}>It's Disney Day!</Text> : ''}
         </View>
         <Text style={styles.viewAndRoomStyle}>{trip.viewTypeName} - {trip.roomTypeName}</Text>
         <Text style={styles.dateRangeStyle}>{formatDate(moment(trip.checkInDate))} - {formatDate(moment(trip.checkOutDate))}</Text>
