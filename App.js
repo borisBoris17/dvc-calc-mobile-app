@@ -11,7 +11,7 @@ import { Asset } from "expo-asset";
 import { BottomNavigation, Provider } from 'react-native-paper';
 import CalculatorComponent from './components/CalculatorComponent';
 import { ContractsComponent } from './components/ContractsComponent';
-import { runTransaction } from './util';
+import { runTransaction, upgradeDbVersion } from './util';
 import { TripsComponent } from './components/TripsComponent';
 import { RootSiblingParent } from 'react-native-root-siblings';
 
@@ -19,6 +19,7 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
   const [db, setDb] = useState(SQLite.openDatabase('dvcCalc.db'));
+  const [dbReady, setDbReady] = useState(false);
   const [index, setIndex] = useState(0);
   const [routes] = useState([
     { key: 'calculator', title: 'Caclulator', focusedIcon: 'calculator', unfocusedIcon: 'calculator' },
@@ -75,14 +76,22 @@ export default function App() {
         await db.closeAsync()
       }
       setDb(SQLite.openDatabase(dbName));
+      setDbReady(true)
     } else {
       setDb(existingDB)
+      setDbReady(true)
     }
   }
 
   useEffect(() => {
     openDatabase();
   }, [])
+
+  useEffect(() => {
+    if (dbReady) {
+      upgradeDbVersion(db)
+    }
+  }, [dbReady, db])
 
   const theme = {
     "colors": {
