@@ -3,7 +3,7 @@ import { Button, HelperText, Modal, TextInput, useTheme } from 'react-native-pap
 import { useState, useEffect } from 'react';
 import { PaperSelect } from 'react-native-paper-select';
 import { createTrip, formatDate, monthToNumberMap, runTransaction, displayToastMessage } from '../util';
-
+import moment from 'moment';
 
 export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, setTrip, trip, checkInDate, checkOutDate }) {
   const [contract, setContract] = useState({
@@ -173,9 +173,9 @@ export default function SaveTripComponent({ db, openSaveTrip, setOpenSaveTrip, s
       onDismissSaveTrip()
       return
     }
-    const checkInDateObj = new Date(checkInDate);
-    const monthOfTripMonthIndex = checkInDateObj.getMonth();
-    const yearOfTrip = checkInDateObj.getFullYear()
+    const checkInDateObj = moment(checkInDate);
+    const monthOfTripMonthIndex = checkInDateObj.month();
+    const yearOfTrip = checkInDateObj.year()
     const selectedContract = (await runTransaction(db, `select * from contract where contract_id = ${selectedContractId}`))[0];
     const useYearOnContractMonthIndex = monthToNumberMap.get(selectedContract.use_year);
     let yearForPointAllotment = yearOfTrip;

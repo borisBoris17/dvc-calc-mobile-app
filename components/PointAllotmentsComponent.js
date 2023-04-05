@@ -1,3 +1,4 @@
+import moment from 'moment';
 import React, { useState } from 'react';
 import { TouchableOpacity, View, StyleSheet } from 'react-native';
 import { Text, TextInput, useTheme } from 'react-native-paper';
@@ -106,9 +107,9 @@ export default function PointAllotmentsComponent({ db, contract, handleRemoveCon
 
   const filterToRelaventYears = (contract) => {
     const { contract_id, use_year, points: fullPoints } = contract
-    const currentDate = new Date();
-    const currentMonth = currentDate.getMonth()
-    const currentYear = currentDate.getFullYear()
+    const currentDate = moment();
+    const currentMonth = currentDate.month()
+    const currentYear = currentDate.year()
     let yearToDisplay = currentYear
     // convert useYear to - based index
     // for feb its 1 

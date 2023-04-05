@@ -45,7 +45,7 @@ export function TripsComponent({ db, index }) {
         const newTrip = { trip_id: trip.trip_id, resortName: trip.resort_name, viewTypeName: trip.view_type_name, roomTypeName: trip.room_type_name, checkInDate: trip.check_in_date, checkOutDate: trip.check_out_date, points: trip.points, contract: contractStr, contract_id: trip.contract_id }
         builtTrips = [...builtTrips, newTrip];
       }));
-      setTrips(builtTrips.sort(function(a, b){return new Date(a.checkInDate) - new Date(b.checkInDate)}))
+      setTrips(builtTrips.sort(function(a, b){return a.checkInDate - b.checkInDate}))
     }
   }
 

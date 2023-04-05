@@ -1,3 +1,4 @@
+import moment from 'moment';
 import Toast from 'react-native-root-toast';
 
 export function formatDateForQuery(date) {
@@ -15,7 +16,7 @@ export function formatDateForQuery(date) {
 }
 
 export function formatDate(date) {
-  return date.toLocaleDateString('en-us', { year: "numeric", month: "short", day: "numeric" })
+  return date.format('LL')
 }
 
 export const displayToastMessage = (msg) => {
@@ -86,7 +87,7 @@ function fetchPointsForNight(db, viewTypeId, dateStr, date) {
         'SELECT * FROM point_value WHERE view_type_id = ? and start_date <= ? and end_date >= ? ORDER BY view_type_id ASC',
         [viewTypeId, dateStr, dateStr],
         (_, { rows: { _array } }) => {
-          if (date.getDay() == 5 || date.getDay() == 6) {
+          if (date.day() == 5 || date.day() == 6) {
             resolve(_array[0]?.weekend_rate);
           }
           resolve(_array[0]?.weekday_rate);
@@ -107,7 +108,7 @@ export async function fetchResults(db, range) {
       const foundViewTypes = await runTransaction(db, `SELECT * FROM view_type WHERE room_type_id = ${roomType.room_type_id} ORDER BY view_type_id ASC`);
       const viewTypeArray = [];
       await Promise.all(foundViewTypes.map(async (viewType) => {
-        let currentDate = new Date(range.startDate);
+        let currentDate = moment(range.startDate);
         let totalPointsNeeded = 0;
         let dates = [];
         while (currentDate < range.endDate) {
@@ -117,10 +118,10 @@ export async function fetchResults(db, range) {
           totalPointsNeeded = totalPointsNeeded + amountForDay;
           // add the points need for that day to the response obj
           dates.push({
-            date: currentDate.toLocaleDateString(),
+            date: currentDate.format('l'),
             points: amountForDay
           });
-          currentDate.setDate(currentDate.getDate() + 1);
+          currentDate = currentDate.add(1, 'd');
         }
         viewTypeArray.push({
           view_type_id: viewType.view_type_id,
@@ -155,9 +156,9 @@ export const createContract = async (db, contract) => {
                   VALUES(${home_resort_id}, ${points}, "${use_year}", ${expiration}) RETURNING *;`
   const insertedContract = await runTransaction(db, query);
   // create the point allotment rows for this contract
-  const currentDate = new Date();
-  const currentMonth = currentDate.getMonth()
-  let previousYear = currentDate.getFullYear() - 1
+  const currentDate = moment();
+  const currentMonth = currentDate.month()
+  let previousYear = currentDate.year() - 1
 
   const lastYearToCreateAllotment = insertedContract[0].expiration - 1;
   const pointAllotments = []
@@ -206,7 +207,7 @@ export const removeContract = async (db, contract) => {
 
 export const createTrip = async (db, trip) => {
   const { contract_id, points, pointsBorrowedFromLastYear, pointsBorrowedFromNextYear, resortName, viewTypeName, roomTypeName, checkInDate, checkOutDate } = trip
-  
+
   const query = `INSERT INTO TRIP (contract_id, resort_name, room_type_name, view_type_name, check_in_date, check_out_date, points, borrowed_from_prev, borrowed_from_next)
                   VALUES (${contract_id}, "${resortName}", "${roomTypeName}", "${viewTypeName}", "${checkInDate.toISOString()}", "${checkOutDate.toISOString()}", ${points}, ${pointsBorrowedFromLastYear}, ${pointsBorrowedFromNextYear}) RETURNING *;`
 
@@ -244,7 +245,7 @@ export const removeTrip = async (db, trip) => {
   }
 }
 
-export const updatePointAllotments = async(db, allotmentsToUpdate) => {
+export const updatePointAllotments = async (db, allotmentsToUpdate) => {
   if (allotmentsToUpdate.length === 0) {
     return
   }
