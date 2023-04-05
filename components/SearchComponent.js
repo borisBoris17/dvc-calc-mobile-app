@@ -11,6 +11,7 @@ registerTranslation('en', en)
 import ResortModalComponent from './ResortModalComponent';
 import { fetchResults } from '../util';
 import RoomTypeModalComponent from './RoomTypeModalComponent';
+import moment from 'moment';
 
 export default function SearchComponent({ db, navigation, resorts, setResorts, roomTypes, setRoomTypes }) {
 
@@ -85,8 +86,8 @@ export default function SearchComponent({ db, navigation, resorts, setResorts, r
   const onConfirm = useCallback(
     ({ startDate, endDate }) => {
       if (startDate && endDate) {
-        const checkInDate = new Date(startDate.toLocaleDateString())
-        const checkOutDate = new Date(endDate.toLocaleDateString())
+        const checkInDate = moment(startDate)
+        const checkOutDate = moment(endDate).startOf('day')
         setRange({ startDate: checkInDate, endDate: checkOutDate });
       }
       setOpen(false);
@@ -130,7 +131,7 @@ export default function SearchComponent({ db, navigation, resorts, setResorts, r
           <TouchableOpacity style={styles.dateInput} onPress={() => setOpen(true)}>
             <Text style={styles.button}>
               {range.startDate && range.endDate ?
-                `${range.startDate.toLocaleDateString('en-us', { year: "numeric", month: "short", day: "numeric" })} - ${range.endDate.toLocaleDateString('en-us', { year: "numeric", month: "short", day: "numeric" })}`
+                `${range.startDate.format('LL')} - ${range.endDate.format('LL')}`
                 : `Select Dates for your stay!`}
             </Text>
             {range.endDate && range.startDate ? <IconButton
@@ -147,8 +148,8 @@ export default function SearchComponent({ db, navigation, resorts, setResorts, r
           mode="range"
           visible={open}
           onDismiss={onDismiss}
-          startDate={range.startDate}
-          endDate={range.endDate}
+          startDate={range.startDate ? new Date(range.startDate) : undefined}
+          endDate={range.endDate ? new Date(range.endDate) : undefined}
           onConfirm={onConfirm}
           validRange={{ startDate: new Date(2023, 0, 1), endDate: new Date(2024, 11, 31) }}
         />

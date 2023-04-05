@@ -1,3 +1,4 @@
+import moment from 'moment';
 import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native';
 import { Card, useTheme } from 'react-native-paper';
 import { tr } from 'react-native-paper-dates';
@@ -19,12 +20,9 @@ export function TripComponent({ trip, handleDeleteTrip }) {
   }
 
   const calculateDaysUntilTrip = (checkInDate) => {
-    const today = new Date();
-    const checkInDateObj = new Date(checkInDate)
-    const timeBetween = checkInDateObj.getTime() - today.getTime()
-    const milliSecInDay = 1000 * 60 * 60 * 24
-    const daysBetween = timeBetween / milliSecInDay
-    return Math.ceil(daysBetween)
+    const today = moment();
+    const checkInDateObj = moment(checkInDate)
+    return checkInDateObj.diff(today, 'days')
   }
 
   const daysUntilTrip = calculateDaysUntilTrip(trip.checkInDate)
@@ -89,7 +87,7 @@ export function TripComponent({ trip, handleDeleteTrip }) {
           {daysUntilTrip > 0 ? <Text style={styles.daysAwayStyle}>{daysUntilTrip} Days Away</Text> : daysUntilTrip === 0 ? <Text style={styles.daysAwayStyle}>It's Disney Day!</Text> : ''}
         </View>
         <Text style={styles.viewAndRoomStyle}>{trip.viewTypeName} - {trip.roomTypeName}</Text>
-        <Text style={styles.dateRangeStyle}>{formatDate(new Date(trip.checkInDate))} - {formatDate(new Date(trip.checkOutDate))}</Text>
+        <Text style={styles.dateRangeStyle}>{formatDate(moment(trip.checkInDate))} - {formatDate(moment(trip.checkOutDate))}</Text>
         <Text style={styles.pointsStyle}>{trip.points} points</Text>
         <Text style={styles.pointsStyle}>Contract: {trip.contract}</Text>
         <View style={styles.removeButtonRow}>
